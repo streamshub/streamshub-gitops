@@ -3,8 +3,8 @@
 ## Structure
 
 - `overlays/` - Platform-specific configurations
-  - `openshift/` - OpenShift using `openshift-gitops` operator
-  - `kubernetes/` - Kubernetes using direct ArgoCD manifests (ARM64 compatible)
+  - `openshift/` - OpenShift using `openshift-gitops` operator (Red Hat's version of ArgoCD)
+  - `kubernetes/` - Kubernetes using direct ArgoCD manifests
 - `examples/` - Optional production configurations
 
 ## Prerequisites
@@ -17,7 +17,7 @@
 ### OpenShift
 
 ```bash
-# Install operator via OLM
+# Install OpenShift GitOps operator (Red Hat's version of ArgoCD) via OLM
 kubectl apply -k overlays/openshift/operator
 
 # Wait for operator to be ready
@@ -26,6 +26,8 @@ kubectl wait --for=condition=Available deployment/openshift-gitops-operator-cont
 # Install ArgoCD instance
 kubectl apply -k overlays/openshift/instance
 ```
+
+**Note**: OpenShift GitOps is Red Hat's enterprise version and support of the ArgoCD project, providing additional OpenShift integrations and enterprise features.
 
 ### Kubernetes
 
