@@ -3,9 +3,8 @@
 ## Structure
 
 - `overlays/` - Platform-specific configurations
-  - `openshift/` - OpenShift using `openshift-gitops` operator (Red Hat's version of ArgoCD)
-  - `kubernetes/` - Kubernetes using direct ArgoCD manifests
-- `examples/` - Optional production configurations
+  - `openshift/` - OpenShift using `openshift-gitops` operator (Red Hat's version of ArgoCD) from operator catalog (OLM)
+  - `kubernetes/` - Kubernetes using direct ArgoCD manifests to install ArgoCD instance and CRDs
 
 ## Prerequisites
 
