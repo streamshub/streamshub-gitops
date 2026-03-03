@@ -2,6 +2,7 @@
 title = 'GitOps'
 +++
 
-This is a placeholder main page for the GitOps content. 
-Links to all sub-pages should be placed here.
+This is the documentation for using GitOps to manage Strimzi-based event-driven infrastructure.
+
+- [Introduction to GitOps](introduction/_index.md) — Why GitOps over ClickOps, core concepts, and common technologies.
 

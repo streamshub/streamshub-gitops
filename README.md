@@ -12,4 +12,4 @@ Documentation, including overviews and tutorials can be found in the `docs` fold
 
 ## Example Code
 
-Example code can be found under the `examples` folder.
+Example code can be found under the [examples](./examples) folder.
