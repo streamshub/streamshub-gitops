@@ -116,6 +116,10 @@ The main ideas:
 - **Automated reconciliation**: A controller in the cluster watches the Git repository and applies changes automatically, so the live state always matches what's declared.
 - **Pull-based deployment**: The controller in the cluster pulls the desired state from Git on its own, instead of relying on an external CI pipeline to push changes in. This means you don't need to give external systems credentials to deploy into the cluster.
 
+The diagram below shows how this works in practice. Changes go into the Git repository through pull requests. Argo CD watches the repository, detects changes, and syncs resources to each environment.
+
+![](./assets/gitops-flow.svg)
+
 ### How GitOps addresses ClickOps problems
 
 | ClickOps challenge                          | GitOps approach                                                                              |

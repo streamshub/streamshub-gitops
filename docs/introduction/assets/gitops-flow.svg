@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520" font-family="sans-serif">
+  <!-- Background -->
+  <rect width="900" height="520" fill="#ffffff"/>
+
+  <!-- Git Repository box -->
+  <rect x="30" y="160" width="180" height="200" rx="12" fill="#f0f0f0" stroke="#333" stroke-width="2"/>
+  <text x="120" y="195" text-anchor="middle" font-size="15" font-weight="bold" fill="#333">Git Repository</text>
+  <line x1="50" y1="210" x2="190" y2="210" stroke="#ccc" stroke-width="1"/>
+  <text x="120" y="235" text-anchor="middle" font-size="12" fill="#555">base/</text>
+  <text x="120" y="255" text-anchor="middle" font-size="12" fill="#555">overlays/test/</text>
+  <text x="120" y="275" text-anchor="middle" font-size="12" fill="#555">overlays/staging/</text>
+  <text x="120" y="295" text-anchor="middle" font-size="12" fill="#555">overlays/prod/</text>
+  <text x="120" y="330" text-anchor="middle" font-size="11" fill="#888">commit → PR → merge</text>
+
+  <!-- Argo CD box -->
+  <rect x="340" y="185" width="180" height="150" rx="12" fill="#e8f4f8" stroke="#2196F3" stroke-width="2"/>
+  <text x="430" y="225" text-anchor="middle" font-size="15" font-weight="bold" fill="#1565C0">Argo CD</text>
+  <line x1="360" y1="238" x2="500" y2="238" stroke="#90CAF9" stroke-width="1"/>
+  <text x="430" y="262" text-anchor="middle" font-size="12" fill="#555">watches repo</text>
+  <text x="430" y="282" text-anchor="middle" font-size="12" fill="#555">detects changes</text>
+  <text x="430" y="302" text-anchor="middle" font-size="12" fill="#555">syncs resources</text>
+
+  <!-- Arrow: Git → Argo CD -->
+  <line x1="210" y1="260" x2="335" y2="260" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="272" y="248" text-anchor="middle" font-size="11" fill="#666">pull</text>
+
+  <!-- Test environment -->
+  <rect x="650" y="40" width="200" height="120" rx="10" fill="#e8f5e9" stroke="#4CAF50" stroke-width="2"/>
+  <text x="750" y="72" text-anchor="middle" font-size="14" font-weight="bold" fill="#2E7D32">Test</text>
+  <line x1="670" y1="82" x2="830" y2="82" stroke="#A5D6A7" stroke-width="1"/>
+  <text x="750" y="105" text-anchor="middle" font-size="11" fill="#555">Kafka cluster</text>
+  <text x="750" y="123" text-anchor="middle" font-size="11" fill="#555">KafkaUsers, Topics</text>
+  <text x="750" y="141" text-anchor="middle" font-size="11" fill="#555">Connect, RBAC</text>
+
+  <!-- Staging environment (centered at y=260, same as Argo CD) -->
+  <rect x="650" y="200" width="200" height="120" rx="10" fill="#fff3e0" stroke="#FF9800" stroke-width="2"/>
+  <text x="750" y="232" text-anchor="middle" font-size="14" font-weight="bold" fill="#E65100">Staging</text>
+  <line x1="670" y1="242" x2="830" y2="242" stroke="#FFCC80" stroke-width="1"/>
+  <text x="750" y="265" text-anchor="middle" font-size="11" fill="#555">Kafka cluster</text>
+  <text x="750" y="283" text-anchor="middle" font-size="11" fill="#555">KafkaUsers, Topics</text>
+  <text x="750" y="301" text-anchor="middle" font-size="11" fill="#555">Connect, RBAC</text>
+
+  <!-- Production environment -->
+  <rect x="650" y="360" width="200" height="120" rx="10" fill="#fce4ec" stroke="#f44336" stroke-width="2"/>
+  <text x="750" y="392" text-anchor="middle" font-size="14" font-weight="bold" fill="#c62828">Production</text>
+  <line x1="670" y1="402" x2="830" y2="402" stroke="#EF9A9A" stroke-width="1"/>
+  <text x="750" y="425" text-anchor="middle" font-size="11" fill="#555">Kafka cluster</text>
+  <text x="750" y="443" text-anchor="middle" font-size="11" fill="#555">KafkaUsers, Topics</text>
+  <text x="750" y="461" text-anchor="middle" font-size="11" fill="#555">Connect, RBAC</text>
+
+  <!-- Arrows: Argo CD → environments -->
+  <line x1="520" y1="240" x2="645" y2="100" stroke="#4CAF50" stroke-width="2" marker-end="url(#arrow-green)"/>
+  <line x1="520" y1="260" x2="645" y2="260" stroke="#FF9800" stroke-width="2" marker-end="url(#arrow-orange)"/>
+  <line x1="520" y1="280" x2="645" y2="420" stroke="#f44336" stroke-width="2" marker-end="url(#arrow-red)"/>
+
+  <!-- Sync labels (positioned above/below arrows to avoid overlap) -->
+  <text x="570" y="158" text-anchor="middle" font-size="11" fill="#4CAF50">sync</text>
+  <text x="582" y="250" text-anchor="middle" font-size="11" fill="#FF9800">sync</text>
+  <text x="570" y="370" text-anchor="middle" font-size="11" fill="#f44336">sync</text>
+
+  <!-- Arrow markers -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4CAF50"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#FF9800"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f44336"/>
+    </marker>
+  </defs>
+</svg>
