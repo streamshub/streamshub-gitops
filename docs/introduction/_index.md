@@ -2,23 +2,28 @@
 title = 'Introduction to GitOps'
 +++
 
-Most of us start managing infrastructure by clicking through web consoles. It works, and it's easy to learn.
+Most of us start managing infrastructure by clicking through web consoles.
+It works, and it's easy to learn.
 But when systems grow and more people are involved, this approach starts causing problems.
 This document explains what ClickOps is, why it can be painful in production, and how GitOps helps.
 
 ## What is ClickOps?
 
 ClickOps means managing infrastructure by clicking through web consoles and admin UIs.
-Need a new Kafka topic? Log in to the console, fill in the form, click "Create".
-Need to give someone access to a namespace? Go to IAM settings, find the role, assign it, click "Save".
+Need a new Kafka topic?
+Log in to the console, fill in the form, click "Create".
+Need to give someone access to a namespace?
+Go to IAM settings, find the role, assign it, click "Save".
 
-This is fine for trying things out or learning. The problems start when teams use this for production.
+This is fine for trying things out or learning.
+The problems start when teams use this for production.
 
 ## The problems with ClickOps
 
 ### Audit logs without context
 
-Most platforms have audit logs. Kubernetes has audit logging, cloud providers have tools like AWS CloudTrail, OpenShift has event history.
+Most platforms have audit logs.
+Kubernetes has audit logging, cloud providers have tools like AWS CloudTrail, OpenShift has event history.
 But these logs record low-level API calls ("user X updated ConfigMap Y at 14:32"), not *why* someone made a change.
 When you need to understand what a colleague did and why, you end up going through audit logs, Slack messages, tickets, and asking around.
 
@@ -32,13 +37,16 @@ Over time, environments that should be the same start to differ in ways that are
 
 If a cluster goes down and you need to recreate it, how do you do it?
 With ClickOps, it depends on whether someone wrote down all the steps and kept that document up to date.
-Usually, the running system *is* the documentation. Once it's gone, you're left trying to put things together from audit logs, backups, and what people remember.
+Usually, the running system *is* the documentation.
+Once it's gone, you're left trying to put things together from audit logs, backups, and what people remember.
 
 ### Rollbacks take work
 
-Some platforms support rollbacks. Kubernetes tracks deployment history and `kubectl rollout undo` can revert a Deployment.
+Some platforms support rollbacks.
+Kubernetes tracks deployment history and `kubectl rollout undo` can revert a Deployment.
 But this only covers some resources.
-Rolling back a Kafka topic configuration, a ConfigMap, a set of RBAC rules, or a bunch of things that were changed together? That's a manual process.
+Rolling back a Kafka topic configuration, a ConfigMap, a set of RBAC rules, or a bunch of things that were changed together?
+That's a manual process.
 You have to figure out what the previous values were and re-apply them one by one.
 
 ## ClickOps in practice
@@ -63,7 +71,8 @@ These problems show up over the next weeks: messages get lost during a broker re
 
 **With GitOps**, the staging cluster configuration would be in YAML files in a Git repository.
 The common settings (resource limits, JVM options, replication factor) would be defined once in a base configuration, and environment-specific values like endpoints and namespaces would be in separate overlays using a tool like Kustomize.
-There would be no need to copy or re-type anything. A pull request review would catch any mistakes before they reach production.
+There would be no need to copy or re-type anything.
+A pull request review would catch any mistakes before they reach production.
 
 ### "Set up a user with the same access as this one"
 
@@ -74,8 +83,10 @@ The administrator opens the console and starts comparing.
 They look at the existing developer's role bindings, then create matching ones for the new user.
 They check the KafkaUser resources and try to copy the ACLs: read access to some topics, write access to others, permissions on consumer groups.
 
-A week later, the new developer reports they can produce to a topic but can't consume. The administrator missed a consumer group ACL.
-Another week later, a security review finds the new developer has write access to a production topic that the existing developer doesn't have. The administrator clicked the wrong topic name in a long dropdown.
+A week later, the new developer reports they can produce to a topic but can't consume.
+The administrator missed a consumer group ACL.
+Another week later, a security review finds the new developer has write access to a production topic that the existing developer doesn't have.
+The administrator clicked the wrong topic name in a long dropdown.
 
 **With GitOps**, user access would be defined as KafkaUser and RoleBinding manifests in the repository.
 Adding the new developer would mean copying the existing user's files, changing the username, and opening a pull request.
@@ -88,7 +99,8 @@ It's Monday morning and the on-call engineer notices the event processing pipeli
 A colleague made some changes on Friday for a different issue, but they're on holiday this week.
 
 The on-call engineer starts looking into it.
-The Kubernetes audit logs show that several resources were updated on Friday, but the entries are just `PATCH` operations on ConfigMaps and custom resources. No explanation of why, and no way to tell which changes are related.
+The Kubernetes audit logs show that several resources were updated on Friday, but the entries are just `PATCH` operations on ConfigMaps and custom resources.
+No explanation of why, and no way to tell which changes are related.
 The Kafka console shows the topic configuration, but was `retention.ms` always this value?
 The Kubernetes dashboard shows the deployments, but were the resource limits always this low?
 
@@ -97,11 +109,13 @@ The colleague reduced `max.poll.records` in a consumer application's ConfigMap t
 Each change made sense on its own, but together they caused the pipeline to fall behind and drop messages when the retention window passed.
 
 Now they need to roll back, but to what values?
-The engineer isn't sure, so they message the colleague on holiday. The colleague responds hours later with values from memory.
+The engineer isn't sure, so they message the colleague on holiday.
+The colleague responds hours later with values from memory.
 
 **With GitOps**, the engineer would check the Git log.
 They'd see what changed on Friday, with a commit message saying why.
-Rolling back would be a `git revert` and a push. Argo CD would apply the previous state in minutes.
+Rolling back would be a `git revert` and a push.
+Argo CD would apply the previous state in minutes.
 The whole thing would take minutes, not most of a day.
 
 ## What is GitOps?
@@ -113,20 +127,21 @@ The main ideas:
 
 - **Declarative configuration**: You describe infrastructure as YAML or JSON manifests, not as a list of manual steps.
 - **Git as the source of truth**: The Git repository is the single record of what the system should look like. All changes go through Git.
-- **Automated reconciliation**: A controller in the cluster watches the Git repository and applies changes automatically, so the live state always matches what's declared.
-- **Pull-based deployment**: The controller in the cluster pulls the desired state from Git on its own, instead of relying on an external CI pipeline to push changes in. This means you don't need to give external systems credentials to deploy into the cluster.
+- **Automated reconciliation**: A controller watches the Git repository and applies changes automatically, so the live state always matches what's declared. It can manage the cluster it runs in, or it can manage remote clusters from a central location.
 
-The diagram below shows how this works in practice. Changes go into the Git repository through pull requests. Argo CD watches the repository, detects changes, and syncs resources to each environment.
+The diagram below shows how this works in practice.
+Changes go into the Git repository through pull requests.
+Argo CD watches the repository, detects changes, and syncs resources to each environment.
 
 ![](./assets/gitops-flow.svg)
 
 ### How GitOps addresses ClickOps problems
 
-| ClickOps challenge                          | GitOps approach                                                                              |
-|----------------------------------------------|----------------------------------------------------------------------------------------------|
-| Audit logs show what happened, not why       | Git commits include a message explaining the reason for each change                          |
-| Environments drift apart over time           | The declared state is the same for each environment; differences are explicit and reviewable  |
-| Reproducibility depends on documentation     | The whole environment can be recreated from the repository                                   |
+| ClickOps challenge                          | GitOps approach                                                                                |
+|----------------------------------------------|------------------------------------------------------------------------------------------------|
+| Audit logs show what happened, not why       | Git commits include a message explaining the reason for each change                            |
+| Environments drift apart over time           | The declared state is the same for each environment, differences are explicit and reviewable   |
+| Reproducibility depends on documentation     | The whole environment can be recreated from the repository                                     |
 | Rollbacks are manual and partial             | `git revert` restores the previous state for all affected resources; the controller applies it |
 
 ## Common GitOps technologies
@@ -136,9 +151,11 @@ There are two main tools for GitOps in the Kubernetes ecosystem:
 ### Argo CD
 
 [Argo CD](https://argo-cd.readthedocs.io/) is a Kubernetes native continuous delivery tool.
-It runs in your cluster, watches Git repositories, and syncs cluster resources to match what's in the repository.
+It runs in a cluster, watches Git repositories, and syncs resources to match what's in the repository.
+It can manage the cluster it runs in, but it can also manage remote clusters, so you can run Argo CD on one cluster and have it deploy to several others.
 
-It comes with a CLI for scripting and automation, and also has a web-based dashboard where you can see the state of all your applications, their sync status, health, and resource details. The dashboard makes it easy to monitor what's deployed, spot problems, and see the diff between what's in Git and what's running in the cluster.
+It comes with a CLI for scripting and automation, and also has a web-based dashboard where you can see the state of all your applications, their sync status, health, and resource details.
+The dashboard makes it easy to monitor what's deployed, spot problems, and see the diff between what's in Git and what's running in the cluster.
 
 Key features:
 
@@ -147,7 +164,6 @@ Key features:
 - CLI for automation and scripting
 - Works with Kustomize, Helm, and plain YAML
 - Automated or manual sync with retry and self-healing
-- Can manage resources across multiple clusters from one instance
 - SSO and RBAC for access control
 
 ### Flux
@@ -166,7 +182,8 @@ Key features:
 ### Choosing a tool
 
 Both tools are mature and work well for production.
-Both are built around the CLI and Git workflow. Argo CD additionally provides a built-in web dashboard for monitoring and visibility, which can help teams get started with GitOps.
+Both are built around the CLI and Git workflow.
+Argo CD additionally provides a built-in web dashboard for monitoring and visibility, which can help teams get started with GitOps.
 
 In this project, we use **Argo CD**.
 
