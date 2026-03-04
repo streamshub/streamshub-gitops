@@ -69,11 +69,6 @@ A connector is pointing at the staging database endpoint because they copied the
 
 These problems show up over the next weeks: messages get lost during a broker restart, connector data is wrong, brokers behave differently under load.
 
-**With GitOps**, the staging cluster configuration would be in YAML files in a Git repository.
-The common settings (resource limits, JVM options, replication factor) would be defined once in a base configuration, and environment-specific values like endpoints and namespaces would be in separate overlays using a tool like Kustomize.
-There would be no need to copy or re-type anything.
-A pull request review would catch any mistakes before they reach production.
-
 ### "Set up a user with the same access as this one"
 
 A new developer joins the team and needs the same Kafka and Kubernetes access as an existing team member.
@@ -87,11 +82,6 @@ A week later, the new developer reports they can produce to a topic but can't co
 The administrator missed a consumer group ACL.
 Another week later, a security review finds the new developer has write access to a production topic that the existing developer doesn't have.
 The administrator clicked the wrong topic name in a long dropdown.
-
-**With GitOps**, user access would be defined as KafkaUser and RoleBinding manifests in the repository.
-Adding the new developer would mean copying the existing user's files, changing the username, and opening a pull request.
-The review would catch any mistakes.
-And because it's the same file with one field changed, the access is the same by definition, not by manual effort.
 
 ### "What did someone change yesterday?"
 
@@ -112,16 +102,13 @@ Now they need to roll back, but to what values?
 The engineer isn't sure, so they message the colleague on holiday.
 The colleague responds hours later with values from memory.
 
-**With GitOps**, the engineer would check the Git log.
-They'd see what changed on Friday, with a commit message saying why.
-Rolling back would be a `git revert` and a push.
-Argo CD would apply the previous state in minutes.
-The whole thing would take minutes, not most of a day.
+All three scenarios share the same root cause: there is no single place where the full state of the system is defined, reviewed, and versioned.
+This is the problem that GitOps solves.
 
 ## What is GitOps?
 
 GitOps is a way of managing infrastructure where you describe the desired state in files stored in a Git repository.
-A controller running in the cluster watches the repository and keeps the live system in sync with what's in Git.
+A controller watches the repository and keeps the live system in sync with what's in Git.
 
 The main ideas:
 
@@ -135,12 +122,41 @@ Argo CD watches the repository, detects changes, and syncs resources to each env
 
 ![](./assets/gitops-flow.svg)
 
-### How GitOps addresses ClickOps problems
+## How GitOps solves the scenarios above
+
+### Deploying "a Kafka cluster just like this one"
+
+With GitOps, the staging cluster configuration lives in YAML files in a Git repository.
+The common settings (resource limits, JVM options, replication factor) are defined once in a base configuration.
+Environment-specific values like endpoints and namespaces go into separate overlays using [Kustomize](https://kustomize.io/).
+
+Kustomize is a tool built into `kubectl` that lets you define a base set of Kubernetes resources and then apply patches or overrides per environment, without duplicating the whole configuration.
+For example, you can have one `Kafka` resource in `base/` and only override the bootstrap endpoint and namespace in `overlays/prod/`.
+
+There is no need to copy or re-type anything.
+A pull request review would catch any mistakes before they reach production.
+
+### Setting up "a user with the same access"
+
+With GitOps, user access is defined as KafkaUser and RoleBinding manifests in the repository.
+Adding the new developer means copying the existing user's files, changing the username, and opening a pull request.
+The review catches any mistakes.
+And because it's the same file with one field changed, the access is the same by definition, not by manual effort.
+
+### Figuring out "what someone changed yesterday"
+
+With GitOps, the on-call engineer would check the Git log.
+They'd see what changed on Friday, with a commit message saying why.
+Rolling back would be a `git revert` and a push.
+The controller would apply the previous state in minutes.
+The whole thing would take minutes, not most of a day.
+
+### Summary
 
 | ClickOps challenge                          | GitOps approach                                                                                |
 |----------------------------------------------|------------------------------------------------------------------------------------------------|
 | Audit logs show what happened, not why       | Git commits include a message explaining the reason for each change                            |
-| Environments drift apart over time           | The declared state is the same for each environment, differences are explicit and reviewable   |
+| Environments drift apart over time           | The declared state is the same for each environment, differences are explicit and reviewable    |
 | Reproducibility depends on documentation     | The whole environment can be recreated from the repository                                     |
 | Rollbacks are manual and partial             | `git revert` restores the previous state for all affected resources; the controller applies it |
 
@@ -187,7 +203,7 @@ Argo CD additionally provides a built-in web dashboard for monitoring and visibi
 
 In this project, we use **Argo CD**.
 
-## Getting started
+## What's next
 
-The rest of this documentation covers how to install and configure Argo CD and use it to manage Strimzi-based event-driven infrastructure.
-Check the other sections for practical examples.
+The rest of this documentation covers practical guides and examples for managing a streaming infrastructure portfolio using GitOps.
+Check the other sections for setup instructions, configuration examples, and how-to guides.
