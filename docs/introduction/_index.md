@@ -16,9 +16,15 @@ Need to give someone access to a namespace?
 Go to IAM settings, find the role, assign it, click "Save".
 
 This is fine for trying things out or learning.
-The problems start when teams use this for production.
+The problems start when teams use this approach for managing infrastructure in production.
 
 ## The problems with ClickOps
+
+### Drift and inconsistency
+
+When people do things by hand, they can do them slightly differently each time.
+Two engineers setting up the same thing will pick slightly different values, miss different labels, or skip different steps.
+Over time, environments that should be the same start to differ in ways that are hard to notice and hard to debug.
 
 ### Audit logs without context
 
@@ -27,18 +33,13 @@ Kubernetes has audit logging, cloud providers have tools like AWS CloudTrail, Op
 But these logs record low-level API calls ("user X updated ConfigMap Y at 14:32"), not *why* someone made a change.
 When you need to understand what a colleague did and why, you end up going through audit logs, Slack messages, tickets, and asking around.
 
-### Drift and inconsistency
-
-When people do things by hand, they do them slightly differently.
-Two engineers setting up the same thing will pick slightly different values, miss different labels, or skip different steps.
-Over time, environments that should be the same start to differ in ways that are hard to notice and hard to debug.
-
 ### Reproducibility depends on discipline
 
-If a cluster goes down and you need to recreate it, how do you do it?
+If a cluster goes down and you need to recreate it, or you want to set up a new cluster _identical_ to an existing known good configuration, how do you do it?
 With ClickOps, it depends on whether someone wrote down all the steps and kept that document up to date.
 Usually, the running system *is* the documentation.
-Once it's gone, you're left trying to put things together from audit logs, backups, and what people remember.
+If the original deployment is gone, you're left trying to put things together from audit logs, backups, and what people remember.
+Even if the original is still running, how can you be sure you have found all the custom configurations that were set?
 
 ### Rollbacks take work
 
@@ -51,14 +52,15 @@ You have to figure out what the previous values were and re-apply them one by on
 
 ## ClickOps in practice
 
-Here are a few scenarios that show how these problems look in real life.
+The issues discussed above can seem abstract.
+Below we discuss a few scenarios that show how these problems can look in real life.
 
 ### "Deploy a Kafka cluster just like this one"
 
 A team has a Kafka cluster in staging that took weeks to get right.
 The brokers have specific resource limits, topics have tuned retention and replication settings, and there are Kafka Connect connectors pulling data from other systems.
 
-The team lead asks a platform engineer to deploy the same cluster in a new production namespace.
+The team lead asks a platform engineer to deploy a Kafka cluster with the same configuration in a new production namespace.
 The engineer opens the staging console and starts going through each resource, writing down the settings.
 They create the new cluster in production, entering each value by hand.
 
@@ -102,6 +104,8 @@ Now they need to roll back, but to what values?
 The engineer isn't sure, so they message the colleague on holiday.
 The colleague responds hours later with values from memory.
 
+### Summary
+
 All three scenarios share the same root cause: there is no single place where the full state of the system is defined, reviewed, and versioned.
 This is the problem that GitOps solves.
 
@@ -113,12 +117,12 @@ A controller watches the repository and keeps the live system in sync with what'
 The main ideas:
 
 - **Declarative configuration**: You describe infrastructure as YAML or JSON manifests, not as a list of manual steps.
-- **Git as the source of truth**: The Git repository is the single record of what the system should look like. All changes go through Git.
+- **Git as the source of truth**: The Git repository is the single record of what the system should look like. All changes go through Git and, crucially from an auditing standpoint, the entire history of deployed configurations is available.
 - **Automated reconciliation**: A controller watches the Git repository and applies changes automatically, so the live state always matches what's declared. It can manage the cluster it runs in, or it can manage remote clusters from a central location.
 
 The diagram below shows how this works in practice.
 Changes go into the Git repository through pull requests.
-Argo CD watches the repository, detects changes, and syncs resources to each environment.
+A Continuous Deployment (CD) system watches the repository, detects changes, and syncs resources to each environment.
 
 ![](./assets/gitops-flow.svg)
 
@@ -126,19 +130,20 @@ Argo CD watches the repository, detects changes, and syncs resources to each env
 
 ### Deploying "a Kafka cluster just like this one"
 
-With GitOps, the staging cluster configuration lives in YAML files in a Git repository.
+Using GitOps, the staging cluster configuration is held in YAML files in a Git repository.
 The common settings (resource limits, JVM options, replication factor) are defined once in a base configuration.
-Environment-specific values like endpoints and namespaces go into separate overlays using [Kustomize](https://kustomize.io/).
+Environment-specific values like endpoints and namespaces can be added into established base configurations by overlaying specific values using systems like [Kustomize](https://kustomize.io/).
 
-Kustomize is a tool built into `kubectl` that lets you define a base set of Kubernetes resources and then apply patches or overrides per environment, without duplicating the whole configuration.
+Kustomize is a tool built into the Kubernetes command-line client (`kubectl`).
+It allows you to define a base set of Kubernetes resources and then apply patches or overrides per environment, without duplicating the whole configuration.
 For example, you can have one `Kafka` resource in `base/` and only override the bootstrap endpoint and namespace in `overlays/prod/`.
 
-There is no need to copy or re-type anything.
-A pull request review would catch any mistakes before they reach production.
+An added advantage of this approach is that all changes can be applied via a pull request to the GitOps repository.
+This means pull-request reviews and/or automated testing in the repository can catch any mistakes before they reach production.
 
 ### Setting up "a user with the same access"
 
-With GitOps, user access is defined as KafkaUser and RoleBinding manifests in the repository.
+Using GitOps, user access to the Kafka cluster is defined via a `KafkaUser` custom resource and RoleBinding YAML file in the GitOps repository.
 Adding the new developer means copying the existing user's files, changing the username, and opening a pull request.
 The review catches any mistakes.
 And because it's the same file with one field changed, the access is the same by definition, not by manual effort.
@@ -148,8 +153,8 @@ And because it's the same file with one field changed, the access is the same by
 With GitOps, the on-call engineer would check the Git log.
 They'd see what changed on Friday, with a commit message saying why.
 Rolling back would be a `git revert` and a push.
-The controller would apply the previous state in minutes.
-The whole thing would take minutes, not most of a day.
+The controller would then apply the previous state automatically.
+The entire process involves significantly less effort for incident responders and, crucially, takes far less time.
 
 ### Summary
 
@@ -200,6 +205,7 @@ Key features:
 Both tools are mature and work well for production.
 Both are built around the CLI and Git workflow.
 Argo CD additionally provides a built-in web dashboard for monitoring and visibility, which can help teams get started with GitOps.
+Flux does not include a native dashboard, but external UIs like [Capacitor](https://fluxcd.io/blog/2024/02/introducing-capacitor/) can provide similar visibility.
 
 In this project, we use **Argo CD**.
 
