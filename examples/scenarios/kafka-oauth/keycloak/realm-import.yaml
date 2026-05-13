@@ -1,0 +1,81 @@
+apiVersion: k8s.keycloak.org/v2alpha1
+kind: KeycloakRealmImport
+metadata:
+  name: kafka-realm-import
+  namespace: keycloak
+spec:
+  keycloakCRName: keycloak
+  realm:
+    realm: kafka
+    enabled: true
+    sslRequired: external
+
+    roles:
+      realm:
+        - name: kafka-admin
+          description: Full access to all Kafka resources
+        - name: kafka-producer
+          description: Can produce messages to topics
+        - name: kafka-consumer
+          description: Can consume messages from topics
+
+    users:
+      - username: kafka-admin
+        enabled: true
+        credentials:
+          - type: password
+            value: kafka-admin
+        realmRoles:
+          - kafka-admin
+          - offline_access
+
+      - username: producer-user
+        enabled: true
+        credentials:
+          - type: password
+            value: producer-user
+        realmRoles:
+          - kafka-producer
+          - offline_access
+
+      - username: consumer-user
+        enabled: true
+        credentials:
+          - type: password
+            value: consumer-user
+        realmRoles:
+          - kafka-consumer
+          - offline_access
+
+      - username: service-account-kafka-client
+        enabled: true
+        serviceAccountClientId: kafka-client
+        realmRoles:
+          - kafka-producer
+          - kafka-consumer
+          - offline_access
+
+    clients:
+      - clientId: kafka-broker
+        enabled: true
+        clientAuthenticatorType: client-secret
+        secret: kafka-broker-secret
+        bearerOnly: false
+        standardFlowEnabled: false
+        implicitFlowEnabled: false
+        directAccessGrantsEnabled: false
+        serviceAccountsEnabled: true
+        publicClient: false
+        fullScopeAllowed: true
+
+      - clientId: kafka-client
+        enabled: true
+        clientAuthenticatorType: client-secret
+        secret: kafka-client-secret
+        bearerOnly: false
+        standardFlowEnabled: false
+        implicitFlowEnabled: false
+        directAccessGrantsEnabled: true
+        serviceAccountsEnabled: true
+        publicClient: false
+        fullScopeAllowed: true
