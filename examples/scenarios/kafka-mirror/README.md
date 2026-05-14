@@ -37,13 +37,13 @@ Two Kafka clusters with MirrorMaker 2 replicating data from the source to the ta
 
 ## Prerequisites
 
-- ArgoCD installed (see [ArgoCD installation](../../infrastructure/argo-cd/))
-- Strimzi or Streams for Apache Kafka operator deployed via ArgoCD (see [operator installation](../../infrastructure/strimzi-operator/))
-- [External Secrets Operator](../../infrastructure/external-secrets-operator/) deployed via ArgoCD for automatic cross-namespace secret replication
+- ArgoCD installed (see [ArgoCD installation](../../argo-cd/))
+- Strimzi or Streams for Apache Kafka operator deployed via ArgoCD (see [operator installation](../../operators/strimzi/))
+- [External Secrets Operator](../../operators/external-secrets/) deployed via ArgoCD for automatic cross-namespace secret replication
 
 ## Cross-Namespace Secret Replication
 
-MirrorMaker 2 runs in `kafka-target` but needs access to the source cluster's CA certificate and user credentials from `kafka-source`. This scenario uses the [External Secrets Operator](../../infrastructure/external-secrets-operator/) with the Kubernetes provider to automatically replicate these secrets.
+MirrorMaker 2 runs in `kafka-target` but needs access to the source cluster's CA certificate and user credentials from `kafka-source`. This scenario uses the [External Secrets Operator](../../operators/external-secrets/) with the Kubernetes provider to automatically replicate these secrets.
 
 The `secrets/` directory contains:
 - **RBAC** — ServiceAccount in `kafka-target` with a Role/RoleBinding granting read access to secrets in `kafka-source`
@@ -60,7 +60,7 @@ Secrets replicated automatically:
 kubectl apply -f argocd/application.yaml
 ```
 
-Or deploy all scenarios at once using the [app-of-apps](../../argocd/app-of-apps/) ApplicationSet.
+Or deploy all scenarios at once using the [app-of-apps](../../app-of-apps/) ApplicationSet.
 
 ArgoCD deploys both clusters, ESO resources, and MirrorMaker 2. Once the source cluster is ready, the External Secrets Operator syncs the required secrets into `kafka-target` and MirrorMaker 2 starts replicating topics.
 

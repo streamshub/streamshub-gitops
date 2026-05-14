@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: streams-for-kafka-operator
+  name: strimzi-operator
   namespace: argocd
 spec:
   project: streamshub
@@ -9,10 +9,10 @@ spec:
     repoURL: https://github.com/streamshub/streamshub-gitops.git
     # TODO: switch back to HEAD before merge
     targetRevision: argocd-kafka-examples
-    path: examples/infrastructure/strimzi-operator/overlays/streams-for-kafka
+    path: examples/operators/strimzi/overlays/openshift
   destination:
     server: https://kubernetes.default.svc
-    namespace: streams-kafka-operator
+    namespace: strimzi-operator
   syncPolicy:
     automated:
       prune: false

@@ -1,32 +1,41 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: streamshub-gitops-scenarios
+  name: streamshub-gitops
   namespace: argocd
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
+    - list:
+        elements:
+          - name: strimzi-operator
+            path: examples/operators/strimzi/overlays/kubernetes
+            namespace: strimzi-operator
+          - name: keycloak-operator
+            path: examples/operators/keycloak/overlays/kubernetes
+            namespace: keycloak
     - git:
         repoURL: https://github.com/streamshub/streamshub-gitops.git
-        revision: HEAD
+        # TODO: switch back to HEAD before merge
+        revision: argocd-kafka-examples
         directories:
           - path: examples/scenarios/*
   template:
     metadata:
-      name: '{{ .path.basename }}'
+      name: '{{ default .path.basename .name }}'
       labels:
         app.kubernetes.io/part-of: streamshub-gitops
-        app.kubernetes.io/managed-by: argocd
     spec:
       project: streamshub
       source:
         repoURL: https://github.com/streamshub/streamshub-gitops.git
         # TODO: switch back to HEAD before merge
         targetRevision: argocd-kafka-examples
-        path: '{{ .path }}'
+        path: '{{ default .path .path.path }}'
       destination:
         server: https://kubernetes.default.svc
+        namespace: '{{ default "" .namespace }}'
       syncPolicy:
         automated:
           prune: false
@@ -36,3 +45,4 @@ spec:
             argocd.argoproj.io/managed-by: argocd
         syncOptions:
           - CreateNamespace=true
+          - ServerSideApply=true

@@ -48,9 +48,9 @@ A self-contained scenario deploying Keycloak as the OIDC identity provider and a
 
 ## Prerequisites
 
-- ArgoCD installed (see [ArgoCD installation](../../infrastructure/argo-cd/))
-- Strimzi or Streams for Apache Kafka operator deployed via ArgoCD (see [strimzi-operator](../../infrastructure/strimzi-operator/))
-- Keycloak or RHBK operator deployed via ArgoCD (see [keycloak-operator](../../infrastructure/keycloak-operator/))
+- ArgoCD installed (see [ArgoCD installation](../../argo-cd/))
+- Strimzi or Streams for Apache Kafka operator deployed via ArgoCD (see [strimzi-operator](../../operators/strimzi/))
+- Keycloak or RHBK operator deployed via ArgoCD (see [keycloak-operator](../../operators/keycloak/))
 
 ## Deploy via ArgoCD
 
@@ -58,7 +58,7 @@ A self-contained scenario deploying Keycloak as the OIDC identity provider and a
 kubectl apply -f argocd/application.yaml
 ```
 
-Or deploy all scenarios at once using the [app-of-apps](../../argocd/app-of-apps/) ApplicationSet.
+Or deploy all scenarios at once using the [app-of-apps](../../app-of-apps/) ApplicationSet.
 
 ## Verify
 
@@ -221,8 +221,8 @@ The Strimzi OAuth libraries (`io.strimzi.kafka.oauth.*`) are bundled in the Stri
 This scenario works identically with Red Hat Build of Keycloak (RHBK). Install the RHBK operator instead of the community Keycloak operator:
 
 ```bash
-# Instead of: kubectl apply -f ../../infrastructure/keycloak-operator/overlays/kubernetes/argocd/application.yaml
-kubectl apply -f ../../infrastructure/keycloak-operator/overlays/rhbk/argocd/application.yaml
+# Instead of: kubectl apply -f ../../operators/keycloak/overlays/kubernetes/argocd/application.yaml
+kubectl apply -f ../../operators/keycloak/overlays/rhbk/argocd/application.yaml
 ```
 
 The Keycloak CR and KeycloakRealmImport CR use the same `k8s.keycloak.org/v2alpha1` API for both products.

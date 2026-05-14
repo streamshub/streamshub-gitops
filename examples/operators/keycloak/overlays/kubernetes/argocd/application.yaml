@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: rhbk-operator
+  name: keycloak-operator
   namespace: argocd
 spec:
   project: streamshub
@@ -9,7 +9,7 @@ spec:
     repoURL: https://github.com/streamshub/streamshub-gitops.git
     # TODO: switch back to HEAD before merge
     targetRevision: argocd-kafka-examples
-    path: examples/infrastructure/keycloak-operator/overlays/rhbk
+    path: examples/operators/keycloak/overlays/kubernetes
   destination:
     server: https://kubernetes.default.svc
     namespace: keycloak
@@ -22,3 +22,4 @@ spec:
         argocd.argoproj.io/managed-by: argocd
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true

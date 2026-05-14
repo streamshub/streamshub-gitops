@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: external-secrets-operator
+  name: strimzi-operator
   namespace: argocd
 spec:
   project: streamshub
@@ -9,10 +9,10 @@ spec:
     repoURL: https://github.com/streamshub/streamshub-gitops.git
     # TODO: switch back to HEAD before merge
     targetRevision: argocd-kafka-examples
-    path: examples/infrastructure/external-secrets-operator/overlays/openshift
+    path: examples/operators/strimzi/overlays/kubernetes
   destination:
     server: https://kubernetes.default.svc
-    namespace: external-secrets-operator
+    namespace: strimzi-operator
   syncPolicy:
     automated:
       prune: false
@@ -22,10 +22,4 @@ spec:
         argocd.argoproj.io/managed-by: argocd
     syncOptions:
       - CreateNamespace=true
-      - SkipDryRunOnMissingResource=true
-    retry:
-      limit: 5
-      backoff:
-        duration: 30s
-        maxDuration: 5m
-        factor: 2
+      - ServerSideApply=true

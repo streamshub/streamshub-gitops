@@ -22,8 +22,8 @@ A production-like Apache Kafka cluster running in KRaft mode with 3 controllers 
 
 ## Prerequisites
 
-- ArgoCD installed (see [ArgoCD installation](../../infrastructure/argo-cd/))
-- Strimzi or Streams for Apache Kafka operator deployed via ArgoCD (see [operator installation](../../infrastructure/strimzi-operator/))
+- ArgoCD installed (see [ArgoCD installation](../../argo-cd/))
+- Strimzi or Streams for Apache Kafka operator deployed via ArgoCD (see [operator installation](../../operators/strimzi/))
 
 ## Deploy via ArgoCD
 
@@ -31,7 +31,7 @@ A production-like Apache Kafka cluster running in KRaft mode with 3 controllers 
 kubectl apply -f argocd/application.yaml
 ```
 
-Or deploy all scenarios at once using the [app-of-apps](../../argocd/app-of-apps/) ApplicationSet.
+Or deploy all scenarios at once using the [app-of-apps](../../app-of-apps/) ApplicationSet.
 
 ## Verify
 
