@@ -5,7 +5,7 @@ A production-like Apache Kafka cluster running in KRaft mode with 3 controllers 
 ## What Gets Deployed
 
 - **Namespace**: `kafka`
-- **Kafka cluster** (`my-cluster`): KRaft mode, Kafka 4.0.0
+- **Kafka cluster** (`my-cluster`): KRaft mode, Kafka 4.2.0
 - **KafkaNodePool** `controllers`: 3 replicas, 10Gi storage
 - **KafkaNodePool** `brokers`: 3 replicas, 100Gi storage
 - **Entity Operator**: Topic Operator + User Operator
@@ -71,4 +71,4 @@ my-cluster-kafka-bootstrap.kafka.svc:9093
 
 These manifests use `kafka.strimzi.io/v1` CRDs and work with both:
 - **Strimzi** 1.0.0+ (community)
-- **Streams for Apache Kafka** 3.2+ (IBM/Red Hat)
+- **Streams for Apache Kafka** 3.2+ (Red Hat)

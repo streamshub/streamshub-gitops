@@ -29,7 +29,7 @@ kubectl apply -f overlays/kubernetes/applicationset.yaml
 
 | Application | Path |
 |-------------|------|
-| `streams-for-kafka-operator` | `operators/strimzi/overlays/streams-for-kafka` |
+| `streams-for-apache-kafka-operator` | `operators/strimzi/overlays/streams-for-kafka` |
 | `rhbk-operator` | `operators/keycloak/overlays/rhbk` |
 | `external-secrets-operator` | `operators/external-secrets/overlays/openshift` |
 | `basic-kafka` | `scenarios/basic-kafka` |

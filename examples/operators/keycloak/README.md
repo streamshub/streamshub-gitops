@@ -3,7 +3,7 @@
 ## Structure
 
 - `overlays/` - Platform and product-specific configurations
-  - `kubernetes/` - Community Keycloak operator (v26.0.7) using upstream CRDs and operator manifests
+  - `kubernetes/` - Community Keycloak operator (v26.6.2) using upstream CRDs and operator manifests
   - `rhbk/` - Red Hat Build of Keycloak operator via OLM (stable-v26.0 channel)
 
 ## Deploy via ArgoCD

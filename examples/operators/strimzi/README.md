@@ -47,7 +47,7 @@ kubectl get crd | grep strimzi
 | Installation | Upstream manifests | OLM (community-operators) | OLM (redhat-operators) |
 | Namespace | `strimzi-operator` | `strimzi-operator` | `streams-kafka-operator` |
 | Updates | Manual manifest updates | Automatic via OLM | Automatic via OLM |
-| Support | Community | Community | IBM/Red Hat commercial support |
+| Support | Community | Community | Red Hat commercial support |
 | CRD API | `kafka.strimzi.io/v1` | `kafka.strimzi.io/v1` | `kafka.strimzi.io/v1` |
 
 ## Customization

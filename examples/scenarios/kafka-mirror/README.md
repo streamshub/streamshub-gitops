@@ -74,10 +74,10 @@ kubectl get kafkamirrormaker2 mirror -n kafka-target
 kubectl get kafkamirrormaker2 mirror -n kafka-target -o jsonpath='{.status.connectors}' | jq .
 
 # Produce to source, verify on target
-kubectl run kafka-producer -ti --image=quay.io/strimzi/kafka:latest-kafka-4.0.0 --rm=true --restart=Never -n kafka-source -- \
+kubectl run kafka-producer -ti --image=quay.io/strimzi/kafka:latest-kafka-4.2.0 --rm=true --restart=Never -n kafka-source -- \
   bin/kafka-console-producer.sh --bootstrap-server source-kafka-bootstrap:9092 --topic test-topic
 
-kubectl run kafka-consumer -ti --image=quay.io/strimzi/kafka:latest-kafka-4.0.0 --rm=true --restart=Never -n kafka-target -- \
+kubectl run kafka-consumer -ti --image=quay.io/strimzi/kafka:latest-kafka-4.2.0 --rm=true --restart=Never -n kafka-target -- \
   bin/kafka-console-consumer.sh --bootstrap-server target-kafka-bootstrap:9092 --topic source.test-topic --from-beginning
 ```
 
@@ -92,4 +92,4 @@ kubectl run kafka-consumer -ti --image=quay.io/strimzi/kafka:latest-kafka-4.0.0 
 
 These manifests use `kafka.strimzi.io/v1` CRDs and work with both:
 - **Strimzi** 1.0.0+ (community)
-- **Streams for Apache Kafka** 3.2+ (IBM/Red Hat)
+- **Streams for Apache Kafka** 3.2+ (Red Hat)

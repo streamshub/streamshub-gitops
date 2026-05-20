@@ -7,8 +7,7 @@ spec:
   project: streamshub
   source:
     repoURL: https://github.com/streamshub/streamshub-gitops.git
-    # TODO: switch back to HEAD before merge
-    targetRevision: argocd-kafka-examples
+    targetRevision: HEAD
     path: examples/scenarios/basic-kafka
   destination:
     server: https://kubernetes.default.svc

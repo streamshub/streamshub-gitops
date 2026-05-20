@@ -7,8 +7,7 @@ spec:
   project: streamshub
   source:
     repoURL: https://github.com/streamshub/streamshub-gitops.git
-    # TODO: switch back to HEAD before merge
-    targetRevision: argocd-kafka-examples
+    targetRevision: HEAD
     path: examples/operators/external-secrets/overlays/openshift
   destination:
     server: https://kubernetes.default.svc

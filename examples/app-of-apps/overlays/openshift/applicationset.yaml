@@ -20,8 +20,7 @@ spec:
             namespace: external-secrets-operator
     - git:
         repoURL: https://github.com/streamshub/streamshub-gitops.git
-        # TODO: switch back to HEAD before merge
-        revision: argocd-kafka-examples
+        revision: HEAD
         directories:
           - path: examples/scenarios/*
   template:
@@ -33,8 +32,7 @@ spec:
       project: streamshub
       source:
         repoURL: https://github.com/streamshub/streamshub-gitops.git
-        # TODO: switch back to HEAD before merge
-        targetRevision: argocd-kafka-examples
+        targetRevision: HEAD
         path: '{{ default .path .path.path }}'
       destination:
         server: https://kubernetes.default.svc

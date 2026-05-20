@@ -22,9 +22,11 @@ There is no need to run `kubectl apply` on individual manifests, no scripts to r
 The only manual step is installing ArgoCD itself.
 After that, every operator and every Kafka scenario is deployed by applying a single YAML file — the ArgoCD Application.
 
-1. **Install ArgoCD** (manual, one-time) — `kubectl apply -k`
-2. **Deploy operators** — one `kubectl apply -f application.yaml` per operator (Strimzi, Keycloak, ESO)
-3. **Deploy scenarios** — one `kubectl apply -f application.yaml` per scenario (basic-kafka, kafka-mirror, kafka-oauth)
+All commands below are run from the repository root.
+
+1. **Install ArgoCD** (manual, one-time) — `kubectl apply -k <PATH_TO_OVERLAY>`
+2. **Deploy operators** — one `kubectl apply -f <path>/application.yaml` per operator (Strimzi, Keycloak, ESO)
+3. **Deploy scenarios** — one `kubectl apply -f <path>/application.yaml` per scenario (basic-kafka, kafka-mirror, kafka-oauth)
 
 Or skip steps 2 and 3 entirely and deploy everything at once with the app-of-apps ApplicationSet.
 
@@ -131,6 +133,7 @@ This is important because the Keycloak operator watches only its own namespace b
 
 The realm includes test users and OAuth clients.
 You can test the setup using [strimzi/test-clients](https://github.com/strimzi/test-clients) Jobs that authenticate via client credentials flow.
+See the [kafka-oauth README](../../examples/scenarios/kafka-oauth/README.md#obtain-a-token-and-produce-messages) for full producer and consumer examples.
 
 ## Making changes
 
@@ -140,7 +143,8 @@ The power of this setup is what happens after the initial deployment.
 
 To add a broker, change `replicas: 3` to `replicas: 4` in `brokers.yaml`, commit, and push.
 ArgoCD detects the change, updates the KafkaNodePool, and Strimzi creates the new broker pod.
-Cruise Control automatically rebalances partitions to include the new broker.
+Cruise Control is configured with `autoRebalance` for `add-brokers` and `remove-brokers` modes, so partitions are automatically redistributed when the broker count changes.
+A `KafkaRebalance` resource is also included for on-demand rebalancing.
 
 ### Updating configuration
 
@@ -152,9 +156,37 @@ ArgoCD syncs the change, and the Strimzi operator performs a rolling restart of 
 Create a new directory under `examples/scenarios/` with a `kustomization.yaml` and the Kafka resources.
 If you're using the app-of-apps ApplicationSet, ArgoCD automatically discovers it and creates a new Application.
 
+Example structure for a new scenario:
+
+```
+examples/scenarios/my-scenario/
+├── kustomization.yaml
+├── namespace.yaml
+├── kafka.yaml
+├── brokers.yaml
+├── controllers.yaml
+└── argocd/
+    └── application.yaml
+```
+
+Minimal `kustomization.yaml`:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - controllers.yaml
+  - brokers.yaml
+  - kafka.yaml
+```
+
 ## Community and product support
 
-All scenarios use the `kafka.strimzi.io/v1` CRD API, which is identical for both the community project and the commercial product.
+Our current examples are based on Strimzi 1.0.0 and its v1 API.
+This API version is also available within Streams for Apache Kafka (SfAK) 3.2.0, but the storage version is still v1beta2.
+Despite that, the examples work with both of these projects/products.
 The only difference is which operator you install.
 
 | Component | Community | Product |
@@ -169,7 +201,7 @@ The scenarios themselves don't change.
 ## What's next
 
 These scenarios cover the foundational Kafka patterns.
-Future additions could include:
+We plan to add the following example scenarios:
 
 - **KafkaConnect with Debezium** for change data capture
 - **StreamsHub Console** for Kafka cluster management UI

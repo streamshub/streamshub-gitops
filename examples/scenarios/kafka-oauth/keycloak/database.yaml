@@ -16,24 +16,25 @@ spec:
     spec:
       containers:
         - name: postgresql-db
-          image: quay.io/sclorg/postgresql-15-c9s:latest
+          image: mirror.gcr.io/library/postgres:18
           ports:
             - containerPort: 5432
           volumeMounts:
-            - mountPath: /var/lib/pgsql/data
+            - mountPath: /var/lib/postgresql/data
               name: postgres-data
+              subPath: pgdata
           env:
-            - name: POSTGRESQL_USER
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: keycloak-db-secret
                   key: username
-            - name: POSTGRESQL_PASSWORD
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: keycloak-db-secret
                   key: password
-            - name: POSTGRESQL_DATABASE
+            - name: POSTGRES_DB
               value: keycloak
           resources:
             requests:
