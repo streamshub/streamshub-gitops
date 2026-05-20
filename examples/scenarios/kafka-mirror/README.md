@@ -81,6 +81,78 @@ kubectl run kafka-consumer -ti --image=quay.io/strimzi/kafka:latest-kafka-4.2.0 
   bin/kafka-console-consumer.sh --bootstrap-server target-kafka-bootstrap:9092 --topic source.test-topic --from-beginning
 ```
 
+Alternatively, use [strimzi/test-clients](https://github.com/strimzi/test-clients) Jobs:
+
+```bash
+# Produce 10 messages to the source cluster
+cat <<EOF | kubectl apply -f -
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mirror-producer
+  namespace: kafka-source
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+        - name: producer
+          image: quay.io/strimzi-test-clients/test-clients:latest-kafka-4.2.0
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: source-kafka-bootstrap:9092
+            - name: TOPIC
+              value: test-topic
+            - name: MESSAGE_COUNT
+              value: "10"
+            - name: MESSAGE
+              value: "hello-mirror"
+            - name: PRODUCER_ACKS
+              value: "all"
+            - name: CLIENT_TYPE
+              value: KafkaProducer
+      restartPolicy: Never
+EOF
+
+# Consume mirrored messages from the target cluster
+cat <<EOF | kubectl apply -f -
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mirror-consumer
+  namespace: kafka-target
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      containers:
+        - name: consumer
+          image: quay.io/strimzi-test-clients/test-clients:latest-kafka-4.2.0
+          env:
+            - name: BOOTSTRAP_SERVERS
+              value: target-kafka-bootstrap:9092
+            - name: TOPIC
+              value: source.test-topic
+            - name: MESSAGE_COUNT
+              value: "10"
+            - name: GROUP_ID
+              value: mirror-test-group
+            - name: CLIENT_TYPE
+              value: KafkaConsumer
+      restartPolicy: Never
+EOF
+
+# Check results
+kubectl wait --for=condition=complete job/mirror-producer -n kafka-source --timeout=60s
+kubectl logs job/mirror-producer -n kafka-source
+kubectl wait --for=condition=complete job/mirror-consumer -n kafka-target --timeout=60s
+kubectl logs job/mirror-consumer -n kafka-target
+
+# Cleanup
+kubectl delete job mirror-producer -n kafka-source
+kubectl delete job mirror-consumer -n kafka-target
+```
+
 ## Customization
 
 - **Topic filtering**: Change `topicsPattern` in `mirror-maker/mirror-maker2.yaml` (default: `.*` mirrors all topics)
