@@ -1,0 +1,120 @@
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  name: source
+  namespace: kafka-source
+spec:
+  kafka:
+    version: 4.2.0
+    metadataVersion: "4.2-IV0"
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+        authentication:
+          type: tls
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      default.replication.factor: 3
+      min.insync.replicas: 2
+      log.retention.hours: 168
+      log.segment.bytes: 1073741824
+    authorization:
+      type: simple
+      superUsers:
+        - CN=admin-user
+        - CN=source-mirror-user
+    logging:
+      type: inline
+      loggers:
+        rootLogger.level: INFO
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-metrics-config
+          key: kafka-metrics-config.yaml
+  entityOperator:
+    topicOperator:
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+    userOperator:
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+  cruiseControl:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+    autoRebalance:
+      - mode: add-brokers
+      - mode: remove-brokers
+    config:
+      cruise.control.metrics.topic.num.partitions: 1
+      cruise.control.metrics.topic.replication.factor: 3
+      cruise.control.metrics.topic.min.insync.replicas: 2
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-metrics-config
+          key: cruise-control-metrics-config.yaml
+  kafkaExporter:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaUser
+metadata:
+  name: source-mirror-user
+  namespace: kafka-source
+  labels:
+    strimzi.io/cluster: source
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      - resource:
+          type: topic
+          name: "*"
+          patternType: literal
+        operations:
+          - Describe
+          - Read
+        host: "*"
+      - resource:
+          type: group
+          name: "*"
+          patternType: literal
+        operations:
+          - Describe
+          - Read
+        host: "*"

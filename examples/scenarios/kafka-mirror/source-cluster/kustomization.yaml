@@ -3,4 +3,7 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
-  - argocd.yaml
+  - metrics-config.yaml
+  - controllers.yaml
+  - brokers.yaml
+  - kafka.yaml

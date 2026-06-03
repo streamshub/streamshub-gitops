@@ -1,0 +1,74 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaMirrorMaker2
+metadata:
+  name: mirror
+  namespace: kafka-target
+spec:
+  version: 4.2.0
+  replicas: 1
+  resources:
+    requests:
+      memory: 512Mi
+      cpu: 250m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+  target:
+    alias: target
+    bootstrapServers: target-kafka-bootstrap.kafka-target.svc:9093
+    groupId: mirror-group
+    configStorageTopic: mirror-config
+    offsetStorageTopic: mirror-offset
+    statusStorageTopic: mirror-status
+    tls:
+      trustedCertificates:
+        - secretName: target-cluster-ca-cert
+          pattern: "*.crt"
+    authentication:
+      type: tls
+      certificateAndKey:
+        secretName: mirror-user
+        certificate: user.crt
+        key: user.key
+    config:
+      config.storage.replication.factor: 2
+      offset.storage.replication.factor: 2
+      status.storage.replication.factor: 2
+  mirrors:
+    - source:
+        alias: source
+        bootstrapServers: source-kafka-bootstrap.kafka-source.svc:9093
+        tls:
+          trustedCertificates:
+            - secretName: source-cluster-ca-cert
+              pattern: "*.crt"
+        authentication:
+          type: tls
+          certificateAndKey:
+            secretName: source-mirror-user
+            certificate: user.crt
+            key: user.key
+      sourceConnector:
+        config:
+          replication.factor: 2
+          offset-syncs.topic.replication.factor: 2
+          sync.topic.acls.enabled: "false"
+        autoRestart:
+          enabled: true
+      checkpointConnector:
+        config:
+          checkpoints.topic.replication.factor: 2
+        autoRestart:
+          enabled: true
+      topicsPattern: ".*"
+      groupsPattern: ".*"
+  logging:
+    type: inline
+    loggers:
+      rootLogger.level: INFO
+  metricsConfig:
+    type: jmxPrometheusExporter
+    valueFrom:
+      configMapKeyRef:
+        name: mirror-maker-metrics-config
+        key: metrics-config.yaml

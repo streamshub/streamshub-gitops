@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rhbk-operator
+  namespace: argocd
+spec:
+  project: streamshub
+  source:
+    repoURL: https://github.com/streamshub/streamshub-gitops.git
+    targetRevision: HEAD
+    path: examples/operators/keycloak/overlays/rhbk
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: keycloak
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    managedNamespaceMetadata:
+      labels:
+        argocd.argoproj.io/managed-by: argocd
+    syncOptions:
+      - CreateNamespace=true
