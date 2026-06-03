@@ -94,10 +94,10 @@ The ApplicationSet uses a combination of a list generator (for operators) and a 
 
 ```bash
 # OpenShift with Streams for Apache Kafka + RHBK
-kubectl apply -f examples/app-of-apps/overlays/openshift/applicationset.yaml
+kubectl apply -f examples/app-of-apps/openshift/applicationset.yaml
 
 # Kubernetes with community Strimzi + Keycloak
-kubectl apply -f examples/app-of-apps/overlays/kubernetes/applicationset.yaml
+kubectl apply -f examples/app-of-apps/kubernetes/applicationset.yaml
 ```
 
 Adding a new scenario directory under `examples/scenarios/` automatically creates a new ArgoCD Application on the next sync.

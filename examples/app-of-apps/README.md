@@ -6,21 +6,21 @@ An ArgoCD ApplicationSet that deploys all infrastructure operators and scenarios
 
 Since infrastructure operators differ between platforms (OLM on OpenShift vs upstream manifests on Kubernetes), there are platform-specific ApplicationSets:
 
-- `overlays/openshift/` — deploys Streams for Apache Kafka, RHBK, ESO (Red Hat), and all scenarios
-- `overlays/kubernetes/` — deploys community Strimzi, Keycloak, and all scenarios
+- `openshift/` — deploys Streams for Apache Kafka, RHBK, ESO (Red Hat), and all scenarios
+- `kubernetes/` — deploys community Strimzi, Keycloak, and all scenarios
 
 ## Quick Start
 
 ### OpenShift
 
 ```bash
-kubectl apply -f overlays/openshift/applicationset.yaml
+kubectl apply -f openshift/applicationset.yaml
 ```
 
 ### Kubernetes
 
 ```bash
-kubectl apply -f overlays/kubernetes/applicationset.yaml
+kubectl apply -f kubernetes/applicationset.yaml
 ```
 
 ## What Gets Deployed
