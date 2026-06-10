@@ -17,7 +17,7 @@ A self-contained scenario deploying Keycloak as the OIDC identity provider and a
 
 - **Kafka cluster** (`my-cluster`): KRaft mode, Kafka 4.2.0
 - **KafkaNodePool** `controllers`: 3 replicas, 10Gi storage
-- **KafkaNodePool** `brokers`: 3 replicas, 100Gi storage
+- **KafkaNodePool** `brokers`: 3 replicas, 10Gi storage
 - **OAuth listener** on port 9093 using `type: custom` with OAUTHBEARER SASL
 - **Entity Operator**: Topic Operator + User Operator
 - **Cruise Control**: Auto-rebalancing
