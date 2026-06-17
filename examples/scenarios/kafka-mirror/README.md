@@ -62,7 +62,7 @@ kubectl apply -f argocd/application.yaml
 
 Or deploy all scenarios at once using the [app-of-apps](../../app-of-apps/) ApplicationSet.
 
-ArgoCD deploys both clusters, ESO resources, and MirrorMaker 2. Once the source cluster is ready, the External Secrets Operator syncs the required secrets into `kafka-target` and MirrorMaker 2 starts replicating topics.
+ArgoCD deploys both clusters, External Secrets Operator resources, and MirrorMaker 2. Once the source cluster is ready, the External Secrets Operator syncs the required secrets into `kafka-target` and MirrorMaker 2 starts replicating topics.
 
 ## Verify
 

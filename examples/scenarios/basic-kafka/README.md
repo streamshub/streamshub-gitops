@@ -7,7 +7,7 @@ A production-like Apache Kafka cluster running in KRaft mode with 3 controllers 
 - **Namespace**: `kafka`
 - **Kafka cluster** (`my-cluster`): KRaft mode, Kafka 4.2.0
 - **KafkaNodePool** `controllers`: 3 replicas, 10Gi storage
-- **KafkaNodePool** `brokers`: 3 replicas, 100Gi storage
+- **KafkaNodePool** `brokers`: 3 replicas, 10Gi storage
 - **Entity Operator**: Topic Operator + User Operator
 - **Cruise Control**: Auto-rebalancing on broker add/remove
 - **Kafka Exporter**: Consumer lag metrics

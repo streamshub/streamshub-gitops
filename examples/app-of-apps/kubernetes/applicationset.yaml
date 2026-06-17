@@ -15,6 +15,9 @@ spec:
           - name: keycloak-operator
             path: examples/operators/keycloak/overlays/kubernetes
             namespace: keycloak
+          - name: external-secrets-operator
+            path: examples/operators/external-secrets/overlays/kubernetes
+            namespace: external-secrets-operator
     - git:
         repoURL: https://github.com/streamshub/streamshub-gitops.git
         revision: HEAD

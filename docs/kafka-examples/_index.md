@@ -25,7 +25,7 @@ After that, every operator and every Kafka scenario is deployed by applying a si
 All commands below are run from the repository root.
 
 1. **Install ArgoCD** (manual, one-time) — `kubectl apply -k <PATH_TO_OVERLAY>`
-2. **Deploy operators** — one `kubectl apply -f <path>/application.yaml` per operator (Strimzi, Keycloak, ESO)
+2. **Deploy operators** — one `kubectl apply -f <path>/application.yaml` per operator (Strimzi, Keycloak, External Secrets Operator)
 3. **Deploy scenarios** — one `kubectl apply -f <path>/application.yaml` per scenario (basic-kafka, kafka-mirror, kafka-oauth)
 
 Or skip steps 2 and 3 entirely and deploy everything at once with the app-of-apps ApplicationSet.
@@ -193,7 +193,7 @@ The only difference is which operator you install.
 |-----------|-----------|---------|
 | Kafka operator | Strimzi | Streams for Apache Kafka (`amq-streams`) |
 | Identity provider | Keycloak | Red Hat Build of Keycloak (`rhbk-operator`) |
-| Secret management | ESO (Helm chart) | ESO for Red Hat OpenShift (`openshift-external-secrets-operator`) |
+| Secret management | External Secrets Operator (Helm chart) | External Secrets Operator for Red Hat OpenShift (`openshift-external-secrets-operator`) |
 
 Switching between community and product is a matter of deploying a different operator Application.
 The scenarios themselves don't change.

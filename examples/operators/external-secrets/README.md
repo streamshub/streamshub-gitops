@@ -1,11 +1,11 @@
 # External Secrets Operator
 
-The [External Secrets Operator (ESO)](https://external-secrets.io/) synchronizes secrets from external sources into Kubernetes Secrets. In this repository, it is used with the **Kubernetes provider** to replicate Strimzi-managed secrets across namespaces (e.g., cluster CA certificates and user credentials for MirrorMaker 2).
+The [External Secrets Operator](https://external-secrets.io/) synchronizes secrets from external sources into Kubernetes Secrets. In this repository, it is used with the **Kubernetes provider** to replicate Strimzi-managed secrets across namespaces (e.g., cluster CA certificates and user credentials for MirrorMaker 2).
 
 ## Structure
 
 - `overlays/` - Platform-specific configurations
-  - `kubernetes/` - Community ESO deployed via ArgoCD Application pointing to the upstream Helm chart
+  - `kubernetes/` - Community External Secrets Operator deployed via ArgoCD Application pointing to the upstream Helm chart
   - `openshift/` - External Secrets Operator for Red Hat OpenShift via OLM (`redhat-operators` catalog, `stable-v1` channel)
 
 ## Deploy via ArgoCD
@@ -16,7 +16,7 @@ The [External Secrets Operator (ESO)](https://external-secrets.io/) synchronizes
 kubectl apply -f overlays/kubernetes/application.yaml
 ```
 
-ArgoCD installs ESO directly from the upstream Helm chart at `charts.external-secrets.io`.
+ArgoCD installs the External Secrets Operator directly from the upstream Helm chart at `charts.external-secrets.io`.
 
 ### OpenShift
 
@@ -44,4 +44,4 @@ kubectl get crd | grep external-secrets
 
 ## How It Works
 
-ESO uses a `SecretStore` with the Kubernetes provider to read secrets from a remote namespace and create local copies via `ExternalSecret` resources. See the [kafka-mirror scenario](../../scenarios/kafka-mirror/) for a working example.
+The External Secrets Operator uses a `SecretStore` with the Kubernetes provider to read secrets from a remote namespace and create local copies via `ExternalSecret` resources. See the [kafka-mirror scenario](../../scenarios/kafka-mirror/) for a working example.

@@ -6,8 +6,8 @@ An ArgoCD ApplicationSet that deploys all infrastructure operators and scenarios
 
 Since infrastructure operators differ between platforms (OLM on OpenShift vs upstream manifests on Kubernetes), there are platform-specific ApplicationSets:
 
-- `openshift/` — deploys Streams for Apache Kafka, RHBK, ESO (Red Hat), and all scenarios
-- `kubernetes/` — deploys community Strimzi, Keycloak, and all scenarios
+- `openshift/` — deploys Streams for Apache Kafka, RHBK, External Secrets Operator (Red Hat), and all scenarios
+- `kubernetes/` — deploys community Strimzi, Keycloak, External Secrets Operator, and all scenarios
 
 ## Quick Start
 
@@ -42,6 +42,7 @@ kubectl apply -f kubernetes/applicationset.yaml
 |-------------|------|
 | `strimzi-operator` | `operators/strimzi/overlays/kubernetes` |
 | `keycloak-operator` | `operators/keycloak/overlays/kubernetes` |
+| `external-secrets-operator` | `operators/external-secrets/overlays/kubernetes` |
 | `basic-kafka` | `scenarios/basic-kafka` |
 | `kafka-mirror` | `scenarios/kafka-mirror` |
 | `kafka-oauth` | `scenarios/kafka-oauth` |
