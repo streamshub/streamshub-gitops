@@ -1,7 +1,6 @@
 # Lesson 1: Your First GitOps Change
 
 **Series:** GitOps with StreamsHub — 3-part series  
-**Prerequisites:** Complete [Getting Started](../00-setup/README.md) first  
 **Time:** ~20 minutes (plus ~8 minutes for first-time setup)
 
 ---
@@ -20,7 +19,7 @@ You will do this by making a real change — adding a Kafka topic — and watchi
 
 ## Prerequisites
 
-If you haven't done this yet, run through the [setup guide](../00-setup/README.md). You only need to do this once. (takes ~8 minutes)
+If you haven't done this yet, run through the [Getting Started](../00-setup/README.md) guide. You only need to do this once. (takes ~8 minutes)
 
 ---
 

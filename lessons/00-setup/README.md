@@ -14,7 +14,7 @@ This directory sets up the shared infrastructure for the GitOps tutorial series.
 | **git** | Version control | [git-scm.com](https://git-scm.com/) |
 | **curl** | HTTP requests | Usually pre-installed |
 
-**System requirements:** ~4 GB of available memory for Docker.
+**System requirements:** ~8 GB of available memory for Docker/Podman.
 
 ---
 
@@ -42,13 +42,8 @@ When the script finishes, it prints the ArgoCD admin password and tells you whic
 
 ## Starting a lesson
 
-After setup completes, run the prep script for the lesson you want:
-
-```bash
-cd ../01-lesson-1 && ./prep.sh
-```
-
-Each `prep.sh` resets the Gitea repository to that lesson's starting state and takes under a minute. You can switch between lessons, or re-run `prep.sh` to reset after making mistakes — without re-running `setup.sh`.
+After setup completes, follow the lesson guide of your choice:
+* [Lesson 1: Your First GitOps Change](../01-lesson-1/README.md)
 
 ---
 
@@ -77,15 +72,3 @@ Kafka takes a few minutes to start, especially on machines with limited resource
 kubectl get pods -n kafka-tutorial
 kubectl describe kafka my-cluster -n kafka-tutorial
 ```
-
-**KinD cluster creation fails with "could not find a log line"**
-This can happen if you have other KinD clusters already running — they exhaust the Linux kernel's inotify instance limit. If you're using Colima, increase the limit temporarily:
-
-```bash
-colima ssh -- sudo sysctl -w fs.inotify.max_user_instances=512
-```
-
-Then retry `./setup.sh`. The setting resets when the Colima VM restarts.
-
-**Insufficient memory**
-If pods are stuck in `Pending` or being evicted, Docker may not have enough memory. Increase Docker Desktop memory to at least 4 GB in Settings > Resources.
