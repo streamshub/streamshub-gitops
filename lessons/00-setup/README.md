@@ -8,10 +8,10 @@ This directory sets up the shared infrastructure for the GitOps tutorial series.
 
 | Tool | Purpose | Install |
 |------|---------|---------|
-| **Docker** | Container runtime | [docker.com](https://www.docker.com/products/docker-desktop/) |
-| **KinD** (v0.20+) | Local Kubernetes clusters | `brew install kind` or [kind.sigs.k8s.io](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) |
-| **kubectl** | Kubernetes CLI | `brew install kubectl` or [kubernetes.io](https://kubernetes.io/docs/tasks/tools/) |
-| **git** | Version control | `brew install git` or [git-scm.com](https://git-scm.com/) |
+| **Docker** or **Podman** | Container runtime | [docker](https://docs.docker.com/get-docker/)<br>[podman](https://podman.io/docs/installation) |
+| **KinD** (v0.20+) | Local Kubernetes clusters | [KinD](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) |
+| **kubectl** | Kubernetes CLI | [kubectl](https://kubernetes.io/docs/tasks/tools/) |
+| **git** | Version control | [git-scm.com](https://git-scm.com/) |
 | **curl** | HTTP requests | Usually pre-installed |
 
 **System requirements:** ~4 GB of available memory for Docker.

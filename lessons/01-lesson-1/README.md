@@ -20,23 +20,7 @@ You will do this by making a real change — adding a Kafka topic — and watchi
 
 ## Prerequisites
 
-You need the following tools installed on your machine:
-
-| Tool | Purpose | Install |
-|------|---------|---------|
-| **Docker** | Container runtime | [docker.com](https://www.docker.com/products/docker-desktop/) |
-| **KinD** (v0.20+) | Local Kubernetes clusters | `brew install kind` or [kind.sigs.k8s.io](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) |
-| **kubectl** | Kubernetes CLI | `brew install kubectl` or [kubernetes.io](https://kubernetes.io/docs/tasks/tools/) |
-| **git** | Version control | `brew install git` or [git-scm.com](https://git-scm.com/) |
-| **curl** | HTTP requests | Usually pre-installed |
-
-**System requirements:** ~4 GB of available memory for Docker.
-
-You also need the shared tutorial infrastructure running. If you haven't done this yet, run the setup script first (takes ~8 minutes, one-time):
-
-```bash
-cd ../lesson-0 && ./setup.sh
-```
+If you haven't done this yet, run through the [setup guide](../00-setup/README.md). You only need to do this once. (takes ~8 minutes)
 
 ---
 
