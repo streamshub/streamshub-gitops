@@ -38,7 +38,7 @@ These can disagree. A manifest can be `Synced` (Kubernetes stored the desired st
 
 ### GitOps rollback
 
-Because Git is the source of truth, rolling back is not a special operation — it is just another Git commit. You revert the bad commit, push, and the reconciler heals the cluster automatically. No `kubectl rollout undo`, no deployment pipeline, no emergency access needed.
+Because the configuration in the Git repository is the source of truth, rolling back is not a special operation — it is just another Git commit. You revert the bad commit, push, and the reconciler heals the cluster automatically. No `kubectl rollout undo`, no deployment pipeline, no emergency access needed.
 
 ---
 
@@ -143,7 +143,14 @@ git commit -m "Reduce my-first-topic to 1 partition"
 git push
 ```
 
-Watch ArgoCD detect the change:
+As in the previous lessons, ArgoCD polls the repository every 3 minutes by default. If you want to skip the wait run the following command:  
+
+```bash
+kubectl annotate application kafka-tutorial -n argocd \
+  argocd.argoproj.io/refresh=normal --overwrite
+```
+
+Watch ArgoCD detect the change, if you ran the command to skip the wait it will already be in the final state shown below:
 
 ```bash
 kubectl get application kafka-tutorial -n argocd -w
@@ -188,7 +195,7 @@ Conditions:
   Message: Decreasing partitions not supported
 ```
 
-Strimzi's Topic Operator attempted to reconfigure the topic and Kafka itself rejected the operation. The actual topic inside the broker still has 3 partitions — nothing in Kafka changed. But the KafkaTopic CR is in an error state because what Git says and what the broker has are now out of agreement.
+Strimzi's Topic Operator attempted to reconfigure the topic and Kafka itself rejected the operation. The actual topic inside the broker still has 3 partitions — nothing in Kafka changed. But the KafkaTopic CR is in an error state because what the configuration in the Git repository says and what the broker has are now out of agreement.
 
 Now check the ArgoCD application status again:
 
@@ -208,7 +215,7 @@ This is the key distinction from the background section made real:
 
 Sync tells you whether ArgoCD succeeded. Health tells you whether the underlying system is in a good state. **Both matter, and they can disagree.** A deployment is not complete until it is both Synced and Healthy — not Synced and Progressing indefinitely.
 
-This situation — synced but not healthy — is exactly when GitOps rollback is needed.
+This situation — synced but not healthy — is exactly when a GitOps rollback is needed.
 
 ---
 
@@ -255,7 +262,7 @@ Push the revert:
 git push
 ```
 
-That is the rollback. No `kubectl` command was run. No deployment pipeline was triggered. You changed Git; the system will reconcile to match.
+That is the rollback. No `kubectl` command was run. No deployment pipeline was triggered. You changed the configuration in Git; the system will reconcile to match.
 
 ### Why not git reset --hard?
 
@@ -279,7 +286,14 @@ This removes the bad commit as if it never existed. In a GitOps context this is 
 
 ## Part 5: Watch the recovery
 
-Watch ArgoCD pick up the revert:
+Once again, to skip the wait for ArgoCD to poll the repository run:
+
+```bash
+kubectl annotate application kafka-tutorial -n argocd \
+  argocd.argoproj.io/refresh=normal --overwrite
+```
+
+Watch ArgoCD pick up the revert, if you skipped the wait ArgoCD will already be in the final state shown below:
 
 ```bash
 kubectl get application kafka-tutorial -n argocd -w
@@ -353,7 +367,7 @@ ArgoCD health check
   └─▶ Reports application Health: Healthy
 ```
 
-Note that the actual Kafka topic inside the broker never had its partition count changed. Strimzi protected the broker from the invalid operation the entire time. What `git revert` did was bring Git and the KafkaTopic CR back in sync with the broker's actual state.
+Note that the actual Kafka topic inside the broker never had its partition count changed. Strimzi protected the broker from the invalid operation the entire time. What `git revert` did was bring the configuration in the Git repository and the KafkaTopic CR back in sync with the broker's actual state.
 
 ---
 
@@ -379,18 +393,6 @@ The `kafka-tutorial` tile shows two distinct indicators: a sync badge and a heal
 
 Click the Application to open the resource tree. Click on `my-first-topic` to see the KafkaTopic details, including the error condition from Strimzi. This view makes the sync/health distinction visible at a glance.
 
----
-
-## Optional: Force an immediate ArgoCD sync
-
-To trigger ArgoCD without waiting up to 3 minutes for its next poll:
-
-```bash
-kubectl annotate application kafka-tutorial -n argocd \
-  argocd.argoproj.io/refresh=normal --overwrite
-```
-
----
 
 ## What you've learned
 
@@ -399,7 +401,7 @@ kubectl annotate application kafka-tutorial -n argocd \
 - Strimzi enforces Kafka's own constraints; some invalid changes deploy silently through Kubernetes but are rejected by the operator
 - `git revert` is the correct GitOps rollback tool: it creates a new commit, preserves history, and is safe for shared branches
 - `git reset --hard` with force-push destroys the audit trail and causes problems for anyone who pulled the broken commit
-- Rollback in GitOps requires no special tooling — change Git, and the reconciler heals the cluster automatically
+- Rollback in GitOps requires no special tooling — change the configuration in the Git repository, and the reconciler heals the cluster automatically
 
 ---
 
