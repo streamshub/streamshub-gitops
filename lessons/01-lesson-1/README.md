@@ -25,7 +25,7 @@ If you haven't done this yet, run through the [Getting Started](../00-setup/READ
 
 ## Background: The GitOps idea in one paragraph
 
-In traditional operations you make changes to a running system by running commands directly against it — `kubectl apply`, a config panel, an API call. GitOps flips this around: a Git repository is the single source of truth for what the system should look like. A tool (in this case ArgoCD) watches the repository and continuously reconciles the live system to match. If Git says a topic should exist, the topic exists. If you remove it from Git, it disappears from the cluster. You never touch the system directly; you only change Git.
+In traditional operations you make changes to a running system by running commands directly against it — `kubectl apply`, a config panel, an API call. GitOps flips this around: a Git repository is the single source of truth for what the system should look like. A tool (in this case ArgoCD) watches the repository and continuously reconciles the live system to match. If the config in the git repository says a topic should exist, then the topic will be created. If you remove it from the config repository, it disappears from the cluster. You never touch the system directly; you only change the configuration in the repo. You now have, thanks to git, a record of all the changes made, when they were made and by who. You can also setup all kinds of sanity and safety checks to run against those changes before they are applied.
 
 ---
 
@@ -77,7 +77,7 @@ my-cluster   1                                              True    KRaft
 cat manifests/kafka.yaml
 ```
 
-That YAML file, committed to the Git repository, is the complete description of this Kafka cluster. ArgoCD read it from Git and the Strimzi operator created the cluster from it. You didn't run any `kubectl apply` commands — the setup script pushed the file to Git and ArgoCD took it from there.
+That YAML file, committed to the Git repository, is the complete description of this Kafka cluster. ArgoCD read it from the repo, applied to the kubernetes cluster and the Strimzi operator created the Kafka cluster from it. You didn't run any `kubectl apply` commands — the setup script pushed the file to the Git repo and ArgoCD took it from there.
 
 ### Check for Kafka topics
 
