@@ -1,7 +1,6 @@
 # Lesson 3: Rolling Back a Bad Change
 
 **Series:** GitOps with StreamsHub — 3-part series  
-**Prerequisites:** Complete [Getting Started](../00-setup/README.md) first  
 **Time:** ~25 minutes (plus ~5 minutes for prep)
 
 ---
@@ -21,23 +20,7 @@ You will do this by deploying a configuration change that ArgoCD accepts but Str
 
 ## Prerequisites
 
-You need the following tools installed on your machine:
-
-| Tool | Purpose | Install |
-|------|---------|---------|
-| **Docker** | Container runtime | [docker.com](https://www.docker.com/products/docker-desktop/) |
-| **KinD** (v0.20+) | Local Kubernetes clusters | `brew install kind` or [kind.sigs.k8s.io](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) |
-| **kubectl** | Kubernetes CLI | `brew install kubectl` or [kubernetes.io](https://kubernetes.io/docs/tasks/tools/) |
-| **git** | Version control | `brew install git` or [git-scm.com](https://git-scm.com/) |
-| **curl** | HTTP requests | Usually pre-installed |
-
-**System requirements:** ~4 GB of available memory for Docker (single Kafka cluster).
-
-You also need the shared tutorial infrastructure running. If you haven't done this yet:
-
-```bash
-cd ../00-setup && ./setup.sh
-```
+If you haven't done this yet, run through the [Getting Started](../00-setup/README.md) guide. You only need to do this once. (takes ~8 minutes)
 
 ---
 
