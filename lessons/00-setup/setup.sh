@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CLUSTER_NAME="gitops-tutorial"
-GITEA_USER="tutorial-user"
-GITEA_PASSWORD="tutorial-password"
-GITEA_REPO="streamshub-gitops"
-GITEA_HOST_PORT=3001
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=common.sh
+source "${SCRIPT_DIR}/common.sh"
 
 info()  { echo -e "\033[1;34m[INFO]\033[0m  $*"; }
 warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*"; }
@@ -76,13 +73,13 @@ for crb in strimzi-cluster-operator strimzi-cluster-operator-kafka-broker-delega
 done
 
 # Tell the operator to watch the kafka-tutorial namespace and create the RoleBindings it needs there.
-kubectl create namespace kafka-tutorial 2>/dev/null || true
-kubectl set env deployment/strimzi-cluster-operator -n strimzi-operator STRIMZI_NAMESPACE='kafka-tutorial'
+kubectl create namespace "${KAFKA_NAMESPACE}" 2>/dev/null || true
+kubectl set env deployment/strimzi-cluster-operator -n strimzi-operator STRIMZI_NAMESPACE="${KAFKA_NAMESPACE}"
 
 for rb_name in strimzi-cluster-operator strimzi-cluster-operator-entity-operator-delegation strimzi-cluster-operator-watched; do
   ROLE_REF=$(kubectl get rolebinding "${rb_name}" -n strimzi-operator -o jsonpath='{.roleRef.name}')
   kubectl create rolebinding "${rb_name}" \
-    --namespace kafka-tutorial \
+    --namespace "${KAFKA_NAMESPACE}" \
     --clusterrole="${ROLE_REF}" \
     --serviceaccount=strimzi-operator:strimzi-cluster-operator 2>/dev/null || true
 done
@@ -120,7 +117,7 @@ kubectl exec -n gitea "${GITEA_POD}" -- gitea admin user create \
 info "Waiting for Gitea to be reachable on localhost:${GITEA_HOST_PORT}..."
 GITEA_READY=false
 for i in $(seq 1 60); do
-  if curl -sf "http://localhost:${GITEA_HOST_PORT}/api/v1/version" >/dev/null 2>&1; then
+  if curl -sf "${GITEA_URL}/api/v1/version" >/dev/null 2>&1; then
     GITEA_READY=true
     break
   fi
@@ -134,7 +131,7 @@ if [[ "${GITEA_READY}" != "true" ]]; then
 fi
 
 TOKEN_RESPONSE=$(curl -sf -X POST \
-  "http://localhost:${GITEA_HOST_PORT}/api/v1/users/${GITEA_USER}/tokens" \
+  "${GITEA_URL}/api/v1/users/${GITEA_USER}/tokens" \
   -u "${GITEA_USER}:${GITEA_PASSWORD}" \
   -H "Content-Type: application/json" \
   -d '{"name":"setup-token","scopes":["all"]}' 2>/dev/null || echo "{}")
@@ -148,7 +145,7 @@ if [[ -z "${TOKEN}" ]]; then
 fi
 
 HTTP_CODE=$(curl -sf -o /dev/null -w "%{http_code}" -X POST \
-  "http://localhost:${GITEA_HOST_PORT}/api/v1/user/repos" \
+  "${GITEA_URL}/api/v1/user/repos" \
   -H "Authorization: token ${TOKEN}" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"${GITEA_REPO}\",\"auto_init\":true,\"default_branch\":\"main\"}" 2>/dev/null || echo "000")
@@ -209,8 +206,8 @@ else
 fi
 
 info "Waiting for Kafka cluster to be ready (this may take several minutes)..."
-kubectl wait kafka/my-cluster --for=condition=Ready -n kafka-tutorial --timeout=600s 2>/dev/null || \
-  warn "Kafka cluster is not yet ready. It may still be starting — check with: kubectl get kafka -n kafka-tutorial"
+kubectl wait "kafka/${KAFKA_CLUSTER_NAME}" --for=condition=Ready -n "${KAFKA_NAMESPACE}" --timeout=600s 2>/dev/null || \
+  warn "Kafka cluster is not yet ready. It may still be starting — check with: kubectl get kafka -n ${KAFKA_NAMESPACE}"
 
 # ─── Step 10: Print instructions ───────────────────────────────────────────────
 

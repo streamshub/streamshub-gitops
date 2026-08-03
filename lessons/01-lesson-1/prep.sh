@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CLUSTER_NAME="gitops-tutorial"
-GITEA_USER="tutorial-user"
-GITEA_PASSWORD="tutorial-password"
-GITEA_REPO="streamshub-gitops"
-GITEA_HOST_PORT=3001
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../00-setup/common.sh
+source "${SCRIPT_DIR}/../00-setup/common.sh"
 
 info()  { echo -e "\033[1;34m[INFO]\033[0m  $*"; }
 warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*"; }
@@ -29,14 +26,14 @@ if ! kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
   exit 1
 fi
 
-if ! kubectl get kafka my-cluster -n kafka-tutorial &>/dev/null; then
-  error "Kafka cluster 'my-cluster' not found in namespace 'kafka-tutorial'."
+if ! kubectl get kafka "${KAFKA_CLUSTER_NAME}" -n "${KAFKA_NAMESPACE}" &>/dev/null; then
+  error "Kafka cluster '${KAFKA_CLUSTER_NAME}' not found in namespace '${KAFKA_NAMESPACE}'."
   error "Please run the setup script first: ../00-setup/setup.sh"
   exit 1
 fi
 
-if ! curl -sf "http://localhost:${GITEA_HOST_PORT}/api/v1/version" >/dev/null 2>&1; then
-  error "Gitea is not reachable on localhost:${GITEA_HOST_PORT}."
+if ! curl -sf "${GITEA_URL}/api/v1/version" >/dev/null 2>&1; then
+  error "Gitea is not reachable on ${GITEA_URL}."
   error "Please run the setup script first: ../00-setup/setup.sh"
   exit 1
 fi
@@ -101,7 +98,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 info "Lesson 1 is ready. Open README.md and follow the lesson steps."
 echo ""
-echo "  Gitea (your Git server):  http://localhost:${GITEA_HOST_PORT}"
+echo "  Gitea (your Git server):  ${GITEA_URL}"
 echo "  Username: ${GITEA_USER}   Password: ${GITEA_PASSWORD}"
 echo ""
 echo "  ArgoCD Dashboard (open in a separate terminal):"
