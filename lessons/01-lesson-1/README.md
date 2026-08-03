@@ -176,15 +176,20 @@ That's it. You've made your GitOps change. The commit is now in the repository t
 
 ## Part 3: Watch the GitOps loop
 
-ArgoCD polls the repository every 3 minutes by default. You can watch it detect and apply the change:
+ArgoCD polls the repository every 3 minutes by default. For the purposes of this lesson, you may not wish to wait that long and can force an immediate update by running the below command:
+
+```bash
+kubectl annotate application kafka-tutorial -n argocd \
+  argocd.argoproj.io/refresh=normal --overwrite
+```
+
+If you chose not to manually force an update above, you can watch it detect and apply the change, otherwise skip ahead to verify the topic was created:
 
 ```bash
 kubectl get application kafka-tutorial -n argocd -w
 ```
 
 Watch the `SYNC STATUS` column. It will move from `Synced` → `OutOfSync` (when ArgoCD detects your push) → `Synced` again (when it has applied the change). Press `Ctrl+C` once you see it settle back to `Synced`.
-
-> **Don't want to wait?** You can trigger an immediate sync — see the [Force an immediate sync](#optional-force-an-immediate-sync) section below.
 
 ### Verify the topic was created
 
