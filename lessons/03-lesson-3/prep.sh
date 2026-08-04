@@ -1,12 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CLUSTER_NAME="gitops-tutorial"
-GITEA_USER="tutorial-user"
-GITEA_PASSWORD="tutorial-password"
-GITEA_REPO="streamshub-gitops"
-GITEA_HOST_PORT=3001
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../00-setup/common.sh
+source "${SCRIPT_DIR}/../00-setup/common.sh"
 
 info()  { echo -e "\033[1;34m[INFO]\033[0m  $*"; }
 warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*"; }
@@ -35,8 +32,8 @@ if ! kubectl get deployment strimzi-cluster-operator -n strimzi-operator &>/dev/
   exit 1
 fi
 
-if ! curl -sf "http://localhost:${GITEA_HOST_PORT}/api/v1/version" >/dev/null 2>&1; then
-  error "Gitea is not reachable on localhost:${GITEA_HOST_PORT}."
+if ! curl -sf "${GITEA_URL}/api/v1/version" >/dev/null 2>&1; then
+  error "Gitea is not reachable on ${GITEA_URL}."
   error "Please run the setup script first: ../00-setup/setup.sh"
   exit 1
 fi
@@ -47,7 +44,7 @@ info "Infrastructure checks passed."
 
 info "Removing ArgoCD applications..."
 
-kubectl delete application kafka-tutorial kafka-staging kafka-production \
+kubectl delete application "${KAFKA_NAMESPACE}" "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}" \
   -n argocd --ignore-not-found 2>/dev/null || true
 
 # ─── Step 3: Reconfigure Strimzi to watch kafka-tutorial ──────────────────────
@@ -56,22 +53,22 @@ kubectl delete application kafka-tutorial kafka-staging kafka-production \
 # kafka-staging/kafka-production it will re-add finalizers to any resources we
 # try to clear, causing namespace deletion to hang.
 
-info "Configuring Strimzi operator for kafka-tutorial namespace..."
+info "Configuring Strimzi operator for ${KAFKA_NAMESPACE} namespace..."
 
-kubectl create namespace kafka-tutorial 2>/dev/null || true
+kubectl create namespace "${KAFKA_NAMESPACE}" 2>/dev/null || true
 
 for rb_name in strimzi-cluster-operator strimzi-cluster-operator-entity-operator-delegation strimzi-cluster-operator-watched; do
   ROLE_REF=$(kubectl get rolebinding "${rb_name}" -n strimzi-operator -o jsonpath='{.roleRef.name}' 2>/dev/null || echo "")
   if [[ -n "${ROLE_REF}" ]]; then
     kubectl create rolebinding "${rb_name}" \
-      --namespace kafka-tutorial \
+      --namespace "${KAFKA_NAMESPACE}" \
       --clusterrole="${ROLE_REF}" \
       --serviceaccount=strimzi-operator:strimzi-cluster-operator 2>/dev/null || true
   fi
 done
 
 kubectl set env deployment/strimzi-cluster-operator -n strimzi-operator \
-  STRIMZI_NAMESPACE='kafka-tutorial'
+  STRIMZI_NAMESPACE="${KAFKA_NAMESPACE}"
 
 info "Waiting for Strimzi operator to restart..."
 kubectl rollout status deployment/strimzi-cluster-operator -n strimzi-operator --timeout=120s
@@ -83,7 +80,7 @@ kubectl rollout status deployment/strimzi-cluster-operator -n strimzi-operator -
 
 info "Cleaning up previous lesson state..."
 
-for ns in kafka-staging kafka-production; do
+for ns in "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}"; do
   for cr_type in kafka kafkanodepool kafkatopic; do
     kubectl get "${cr_type}" -n "${ns}" -o name 2>/dev/null | \
       xargs -r -I{} kubectl patch {} -n "${ns}" \
@@ -91,7 +88,7 @@ for ns in kafka-staging kafka-production; do
   done
 done
 
-kubectl delete namespace kafka-staging kafka-production --ignore-not-found
+kubectl delete namespace "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}" --ignore-not-found
 
 info "Previous lesson state cleaned up."
 
@@ -122,23 +119,23 @@ popd >/dev/null
 
 # ─── Step 6: Create ArgoCD Application kafka-tutorial ─────────────────────────
 
-info "Creating ArgoCD application kafka-tutorial..."
+info "Creating ArgoCD application ${KAFKA_NAMESPACE}..."
 
 kubectl apply -f - <<EOF
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kafka-tutorial
+  name: ${KAFKA_NAMESPACE}
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: http://gitea-http.gitea.svc:3000/tutorial-user/streamshub-gitops.git
+    repoURL: http://gitea-http.gitea.svc:3000/${GITEA_USER}/${GITEA_REPO}.git
     targetRevision: main
     path: manifests
   destination:
     server: https://kubernetes.default.svc
-    namespace: kafka-tutorial
+    namespace: ${KAFKA_NAMESPACE}
   syncPolicy:
     automated:
       prune: true
@@ -154,12 +151,12 @@ EOF
 
 info "Waiting for ArgoCD to sync..."
 
-kubectl annotate application kafka-tutorial -n argocd argocd.argoproj.io/refresh=normal --overwrite >/dev/null 2>&1 || true
+kubectl annotate application "${KAFKA_NAMESPACE}" -n argocd argocd.argoproj.io/refresh=normal --overwrite >/dev/null 2>&1 || true
 
 SYNC_STATUS="Unknown"
 for i in $(seq 1 24); do
-  CURRENT_REVISION=$(kubectl get application kafka-tutorial -n argocd -o jsonpath='{.status.sync.revision}' 2>/dev/null || echo "")
-  SYNC_STATUS=$(kubectl get application kafka-tutorial -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
+  CURRENT_REVISION=$(kubectl get application "${KAFKA_NAMESPACE}" -n argocd -o jsonpath='{.status.sync.revision}' 2>/dev/null || echo "")
+  SYNC_STATUS=$(kubectl get application "${KAFKA_NAMESPACE}" -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
   if [[ "${CURRENT_REVISION}" == "${TARGET_REVISION}" && "${SYNC_STATUS}" == "Synced" ]]; then
     break
   fi
@@ -168,7 +165,7 @@ done
 
 if [[ "${SYNC_STATUS}" != "Synced" ]]; then
   warn "ArgoCD has not synced yet (status: ${SYNC_STATUS})."
-  warn "Check status with: kubectl get application kafka-tutorial -n argocd"
+  warn "Check status with: kubectl get application ${KAFKA_NAMESPACE} -n argocd"
 else
   info "ArgoCD application is synced."
 fi
@@ -176,14 +173,14 @@ fi
 # ─── Step 8: Wait for Kafka cluster to be ready ────────────────────────────────
 
 info "Waiting for Kafka cluster to be ready (this may take a few minutes)..."
-kubectl wait kafka/my-cluster --for=condition=Ready -n kafka-tutorial --timeout=600s 2>/dev/null || \
-  warn "Kafka cluster is not yet ready. Check with: kubectl get kafka -n kafka-tutorial"
+kubectl wait kafka/${KAFKA_CLUSTER_NAME} --for=condition=Ready -n "${KAFKA_NAMESPACE}" --timeout=600s 2>/dev/null || \
+  warn "Kafka cluster is not yet ready. Check with: kubectl get kafka -n ${KAFKA_NAMESPACE}"
 
 # ─── Step 9: Wait for KafkaTopic to be ready ──────────────────────────────────
 
 info "Waiting for KafkaTopic to be ready..."
-kubectl wait kafkatopic/my-first-topic --for=condition=Ready -n kafka-tutorial --timeout=120s 2>/dev/null || \
-  warn "KafkaTopic is not yet ready. Check with: kubectl get kafkatopic -n kafka-tutorial"
+kubectl wait kafkatopic/my-first-topic --for=condition=Ready -n "${KAFKA_NAMESPACE}" --timeout=120s 2>/dev/null || \
+  warn "KafkaTopic is not yet ready. Check with: kubectl get kafkatopic -n ${KAFKA_NAMESPACE}"
 
 # ─── Step 10: Print starting instructions ─────────────────────────────────────
 
@@ -197,7 +194,7 @@ echo ""
 echo "  Clone the repo to follow along:"
 echo "     git clone http://${GITEA_USER}:${GITEA_PASSWORD}@localhost:${GITEA_HOST_PORT}/${GITEA_USER}/${GITEA_REPO}.git /tmp/gitops-lesson-3"
 echo ""
-echo "  Gitea (your Git server):  http://localhost:${GITEA_HOST_PORT}"
+echo "  Gitea (your Git server):  ${GITEA_URL}"
 echo "  Username: ${GITEA_USER}   Password: ${GITEA_PASSWORD}"
 echo ""
 echo "  ArgoCD Dashboard (open in a separate terminal):"
