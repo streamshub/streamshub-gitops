@@ -26,8 +26,12 @@ for cmd in kind kubectl git curl; do
   fi
 done
 
-if ! docker info &>/dev/null 2>&1; then
-  error "Docker is not running. Please start Docker Desktop or your container runtime."
+if docker info &>/dev/null 2>&1; then
+  :
+elif podman info &>/dev/null 2>&1; then
+  :
+else
+  error "Neither Docker nor Podman is running. Please start your container runtime."
   exit 1
 fi
 
