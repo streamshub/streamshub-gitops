@@ -6,7 +6,9 @@ A hands-on tutorial series for learning GitOps with Apache Kafka on Kubernetes. 
 
 ## How the series works
 
-A shared cluster runs for the whole series. You set it up once, then run a short prep script before each lesson to put the environment in the right starting state. Lessons take 20–30 minutes each and involve making real changes to a Git repository and watching the effects propagate to the cluster automatically.
+If you're new to GitOps, start with the [introduction](introduction-why-should-you-embrace-gitops.md) — it explains the operational problems GitOps solves and makes a great primer before diving into the hands-on lessons that follow.
+
+The lessons themselves share a single cluster for the whole series. You set it up once, then run a short prep script before each lesson to put the environment in the right starting state. Lessons take 20–30 minutes each and involve making real changes to a Git repository and watching the effects propagate to the cluster automatically.
 
 ---
 
@@ -14,6 +16,7 @@ A shared cluster runs for the whole series. You set it up once, then run a short
 
 | # | Title | What you will do |
 |---|-------|-----------------|
+| [Introduction](introduction-why-should-you-embrace-gitops.md) | Why should you embrace GitOps? | Understand the operational challenges of running Kafka at scale and why GitOps is the answer. |
 | [Getting Started](00-setup/README.md) | Environment setup | Install the shared cluster, ArgoCD, Strimzi, and a local Git server. Run this once before any lesson. |
 | [Lesson 1](01-lesson-1/README.md) | Your First GitOps Change | Add a Kafka topic by editing a file in Git and watch ArgoCD deploy it automatically — without running `kubectl apply`. |
 | [Lesson 2](02-lesson-2/README.md) | Promoting Changes Across Environments | Use kustomize overlays to manage staging and production separately, then promote a topic from staging to production with a single Git change. |
