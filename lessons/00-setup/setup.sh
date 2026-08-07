@@ -62,31 +62,8 @@ kubectl rollout status deployment/argocd-repo-server -n argocd --timeout=300s
 # ─── Step 4: Install Strimzi operator ──────────────────────────────────────────
 
 info "Installing Strimzi operator..."
-kubectl create namespace strimzi-operator 2>/dev/null || true
-kubectl apply -k "${SCRIPT_DIR}/../../examples/operators/strimzi/overlays/kubernetes" --server-side 2>/dev/null || \
-  kubectl apply -k "${SCRIPT_DIR}/../../examples/operators/strimzi/overlays/kubernetes" --server-side
-
-# The upstream Strimzi YAML hardcodes 'myproject' as the ServiceAccount namespace in RoleBindings.
-# Kustomize namespace override doesn't fix subject references, so patch them manually.
-STRIMZI_NS_PATCH='[{"op":"replace","path":"/subjects/0/namespace","value":"strimzi-operator"}]'
-for rb in strimzi-cluster-operator strimzi-cluster-operator-entity-operator-delegation strimzi-cluster-operator-leader-election strimzi-cluster-operator-watched; do
-  kubectl patch rolebinding "${rb}" -n strimzi-operator --type=json -p "${STRIMZI_NS_PATCH}" 2>/dev/null || true
-done
-for crb in strimzi-cluster-operator strimzi-cluster-operator-kafka-broker-delegation strimzi-cluster-operator-kafka-client-delegation; do
-  kubectl patch clusterrolebinding "${crb}" --type=json -p "${STRIMZI_NS_PATCH}" 2>/dev/null || true
-done
-
-# Tell the operator to watch the kafka-tutorial namespace and create the RoleBindings it needs there.
-kubectl create namespace "${KAFKA_NAMESPACE}" 2>/dev/null || true
-kubectl set env deployment/strimzi-cluster-operator -n strimzi-operator STRIMZI_NAMESPACE="${KAFKA_NAMESPACE}"
-
-for rb_name in strimzi-cluster-operator strimzi-cluster-operator-entity-operator-delegation strimzi-cluster-operator-watched; do
-  ROLE_REF=$(kubectl get rolebinding "${rb_name}" -n strimzi-operator -o jsonpath='{.roleRef.name}')
-  kubectl create rolebinding "${rb_name}" \
-    --namespace "${KAFKA_NAMESPACE}" \
-    --clusterrole="${ROLE_REF}" \
-    --serviceaccount=strimzi-operator:strimzi-cluster-operator 2>/dev/null || true
-done
+kubectl apply -k "${SCRIPT_DIR}/strimzi" --server-side 2>/dev/null || \
+  kubectl apply -k "${SCRIPT_DIR}/strimzi" --server-side
 
 info "Waiting for Strimzi operator to be ready..."
 kubectl rollout status deployment/strimzi-cluster-operator -n strimzi-operator --timeout=300s
