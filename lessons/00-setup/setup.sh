@@ -52,8 +52,8 @@ info "Cluster is ready."
 # ─── Step 3: Install ArgoCD ────────────────────────────────────────────────────
 
 info "Installing ArgoCD..."
-kubectl apply -k "${SCRIPT_DIR}/../../examples/argo-cd/overlays/kubernetes" --server-side 2>/dev/null || \
-  kubectl apply -k "${SCRIPT_DIR}/../../examples/argo-cd/overlays/kubernetes" --server-side
+kubectl apply -k "${SCRIPT_DIR}/argocd" --server-side 2>/dev/null || \
+  kubectl apply -k "${SCRIPT_DIR}/argocd" --server-side
 
 info "Waiting for ArgoCD to be ready (this may take a few minutes)..."
 kubectl rollout status deployment/argocd-server -n argocd --timeout=300s
