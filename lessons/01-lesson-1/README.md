@@ -67,8 +67,8 @@ kubectl get kafka -n kafka-tutorial
 Expected output:
 
 ```
-NAME         DESIRED KAFKA REPLICAS   DESIRED ZK REPLICAS   READY   METADATA STATE   WARNINGS
-my-cluster   1                                              True    KRaft
+NAME         READY    WARNINGS    KAFKA VERSION    METADATA VERSION
+my-cluster   True                 4.2.0            4.2-IV0
 ```
 
 `READY: True` means Kafka is up. Now look at *how* this cluster got here — open `manifests/kafka.yaml`:
@@ -77,7 +77,7 @@ my-cluster   1                                              True    KRaft
 cat manifests/kafka.yaml
 ```
 
-That YAML file, committed to the Git repository, is the complete description of this Kafka cluster. ArgoCD read it from the repo, applied to the kubernetes cluster and the Strimzi operator created the Kafka cluster from it. You didn't run any `kubectl apply` commands — the setup script pushed the file to the Git repo and ArgoCD took it from there.
+That YAML file, committed to the Git repository, is the description of this Kafka cluster. ArgoCD read it from the repo, applied to the kubernetes cluster and the Strimzi operator created the Kafka cluster from it. You didn't run any `kubectl apply` commands — the setup script pushed the file to the Git repo and ArgoCD took it from there.
 
 ### Check for Kafka topics
 
@@ -85,7 +85,7 @@ That YAML file, committed to the Git repository, is the complete description of 
 kubectl get kafkatopic -n kafka-tutorial
 ```
 
-You should see no topics listed (or only internal Strimzi housekeeping topics). There is no application topic yet.
+You should see no topics listed.
 
 ### Understand the kustomization file
 
@@ -104,7 +104,7 @@ resources:
   - kafka.yaml
 ```
 
-This tells ArgoCD: "deploy these three files." Notice that `topic.yaml` is not listed, even though the file exists in the repository:
+This tells ArgoCD: "deploy the configuration in these three files to Kubernetes." Notice that `topic.yaml` is not listed, even though the file exists in the repository:
 
 ```bash
 ls manifests/
@@ -176,7 +176,14 @@ That's it. You've made your GitOps change. The commit is now in the repository t
 
 ## Part 3: Watch the GitOps loop
 
-ArgoCD polls the repository every 3 minutes by default. You can watch it detect and apply the change:
+ArgoCD polls the repository every 3 minutes by default. If you want to skip the wait run the following command:  
+
+```bash
+kubectl annotate application kafka-tutorial -n argocd \
+  argocd.argoproj.io/refresh=normal --overwrite
+```
+
+Watch ArgoCD detect the change, if you chose to skip the wait, the sync status will already be the `Synced` state:
 
 ```bash
 kubectl get application kafka-tutorial -n argocd -w
@@ -184,7 +191,6 @@ kubectl get application kafka-tutorial -n argocd -w
 
 Watch the `SYNC STATUS` column. It will move from `Synced` → `OutOfSync` (when ArgoCD detects your push) → `Synced` again (when it has applied the change). Press `Ctrl+C` once you see it settle back to `Synced`.
 
-> **Don't want to wait?** You can trigger an immediate sync — see the [Force an immediate sync](#optional-force-an-immediate-sync) section below.
 
 ### Verify the topic was created
 
@@ -246,19 +252,6 @@ kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.pas
 ```
 
 Log in with username `admin` and the password above. Click the `kafka-tutorial` application to see the full resource tree — Namespace, KafkaNodePool, Kafka, and now KafkaTopic, all managed by ArgoCD from a single Git repository.
-
----
-
-## Optional: Force an immediate sync
-
-If you don't want to wait up to 3 minutes for the next poll, you can trigger an immediate sync using `kubectl`:
-
-```bash
-kubectl annotate application kafka-tutorial -n argocd \
-  argocd.argoproj.io/refresh=normal --overwrite
-```
-
-This tells ArgoCD to poll Gitea right now. The annotation is cleared automatically once the sync completes.
 
 ---
 
