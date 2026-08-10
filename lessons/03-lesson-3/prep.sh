@@ -40,47 +40,14 @@ fi
 
 info "Infrastructure checks passed."
 
-# ─── Step 2: Remove ArgoCD Applications ───────────────────────────────────────
+# ─── Step 2: Clean up previous lesson state ──────────────────────────────────
 
-info "Removing ArgoCD applications..."
+info "Cleaning up previous lesson state..."
 
 kubectl delete application "${KAFKA_NAMESPACE}" "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}" \
   -n argocd --ignore-not-found 2>/dev/null || true
 
-# ─── Step 3: Reconfigure Strimzi to watch kafka-tutorial ──────────────────────
-#
-# This must happen BEFORE deleting lesson-2 namespaces. While Strimzi watches
-# kafka-staging/kafka-production it will re-add finalizers to any resources we
-# try to clear, causing namespace deletion to hang.
-
-info "Configuring Strimzi operator for ${KAFKA_NAMESPACE} namespace..."
-
-kubectl create namespace "${KAFKA_NAMESPACE}" 2>/dev/null || true
-
-for rb_name in strimzi-cluster-operator strimzi-cluster-operator-entity-operator-delegation strimzi-cluster-operator-watched; do
-  ROLE_REF=$(kubectl get rolebinding "${rb_name}" -n strimzi-operator -o jsonpath='{.roleRef.name}' 2>/dev/null || echo "")
-  if [[ -n "${ROLE_REF}" ]]; then
-    kubectl create rolebinding "${rb_name}" \
-      --namespace "${KAFKA_NAMESPACE}" \
-      --clusterrole="${ROLE_REF}" \
-      --serviceaccount=strimzi-operator:strimzi-cluster-operator 2>/dev/null || true
-  fi
-done
-
-kubectl set env deployment/strimzi-cluster-operator -n strimzi-operator \
-  STRIMZI_NAMESPACE="${KAFKA_NAMESPACE}"
-
-info "Waiting for Strimzi operator to restart..."
-kubectl rollout status deployment/strimzi-cluster-operator -n strimzi-operator --timeout=120s
-
-# ─── Step 4: Clean up lesson-2 namespaces ─────────────────────────────────────
-#
-# Now that Strimzi only watches kafka-tutorial, it will not re-add finalizers to
-# resources in kafka-staging or kafka-production.
-
-info "Cleaning up previous lesson state..."
-
-for ns in "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}"; do
+for ns in "${KAFKA_NAMESPACE}" "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}"; do
   for cr_type in kafka kafkanodepool kafkatopic; do
     kubectl get "${cr_type}" -n "${ns}" -o name 2>/dev/null | \
       xargs -r -I{} kubectl patch {} -n "${ns}" \
@@ -92,7 +59,7 @@ kubectl delete namespace "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESP
 
 info "Previous lesson state cleaned up."
 
-# ─── Step 5: Seed the Gitea repository with lesson-3 starting state ──────────
+# ─── Step 3: Seed the Gitea repository with lesson-3 starting state ──────────
 
 info "Resetting Gitea repository to lesson-3 starting state..."
 
@@ -117,7 +84,7 @@ fi
 TARGET_REVISION=$(git rev-parse HEAD)
 popd >/dev/null
 
-# ─── Step 6: Create ArgoCD Application kafka-tutorial ─────────────────────────
+# ─── Step 4: Create ArgoCD Application kafka-tutorial ─────────────────────────
 
 info "Creating ArgoCD application ${KAFKA_NAMESPACE}..."
 
@@ -147,7 +114,7 @@ spec:
       - CreateNamespace=true
 EOF
 
-# ─── Step 7: Wait for ArgoCD to sync ──────────────────────────────────────────
+# ─── Step 5: Wait for ArgoCD to sync ──────────────────────────────────────────
 
 info "Waiting for ArgoCD to sync..."
 
@@ -170,19 +137,19 @@ else
   info "ArgoCD application is synced."
 fi
 
-# ─── Step 8: Wait for Kafka cluster to be ready ────────────────────────────────
+# ─── Step 6: Wait for Kafka cluster to be ready ────────────────────────────────
 
 info "Waiting for Kafka cluster to be ready (this may take a few minutes)..."
 kubectl wait kafka/${KAFKA_CLUSTER_NAME} --for=condition=Ready -n "${KAFKA_NAMESPACE}" --timeout=600s 2>/dev/null || \
   warn "Kafka cluster is not yet ready. Check with: kubectl get kafka -n ${KAFKA_NAMESPACE}"
 
-# ─── Step 9: Wait for KafkaTopic to be ready ──────────────────────────────────
+# ─── Step 7: Wait for KafkaTopic to be ready ──────────────────────────────────
 
 info "Waiting for KafkaTopic to be ready..."
 kubectl wait kafkatopic/my-first-topic --for=condition=Ready -n "${KAFKA_NAMESPACE}" --timeout=120s 2>/dev/null || \
   warn "KafkaTopic is not yet ready. Check with: kubectl get kafkatopic -n ${KAFKA_NAMESPACE}"
 
-# ─── Step 10: Print starting instructions ─────────────────────────────────────
+# ─── Step 8: Print starting instructions ──────────────────────────────────────
 
 ARGOCD_PASSWORD=$(b64decode "$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}')")
 

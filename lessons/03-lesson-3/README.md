@@ -53,9 +53,8 @@ Run the prep script from this directory:
 This takes approximately 5 minutes. It:
 
 1. Removes any state from previous lessons
-2. Configures the Strimzi operator to watch the `kafka-tutorial` namespace
-3. Seeds the Gitea repository with a working Kafka cluster and topic
-4. Waits for both the Kafka cluster and the topic to become ready
+2. Seeds the Gitea repository with a working Kafka cluster and topic
+3. Waits for both the Kafka cluster and the topic to become ready
 
 When it finishes it prints the Gitea and ArgoCD credentials.
 
@@ -81,8 +80,8 @@ kubectl get kafka -n kafka-tutorial
 Expected output:
 
 ```
-NAME         DESIRED KAFKA REPLICAS   DESIRED ZK REPLICAS   READY   METADATA STATE   WARNINGS
-my-cluster   1                                              True    KRaft
+NAME         READY   WARNINGS   KAFKA VERSION   METADATA VERSION
+my-cluster   True               4.2.0           4.2-IV0
 ```
 
 ```bash
@@ -477,11 +476,11 @@ kubectl annotate application kafka-tutorial -n argocd \
 ```
 
 **Strimzi is not managing the kafka-tutorial namespace**  
-After Lesson 2, Strimzi was watching `kafka-staging,kafka-production`. Verify it was reconfigured by prep.sh:
+Verify the Strimzi operator is running and watching all namespaces:
 
 ```bash
 kubectl get deployment strimzi-cluster-operator -n strimzi-operator \
   -o jsonpath='{.spec.template.spec.containers[0].env[?(@.name=="STRIMZI_NAMESPACE")].value}'; echo
 ```
 
-It should show `kafka-tutorial`. If not, re-run `./prep.sh`.
+It should show `*`. If not, re-run `../00-setup/setup.sh`.
