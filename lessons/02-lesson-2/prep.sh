@@ -92,57 +92,8 @@ popd >/dev/null
 
 info "Creating ArgoCD applications for staging and production..."
 
-kubectl apply -f - <<EOF
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: ${KAFKA_STAGING_NAMESPACE}
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: http://gitea-http.gitea.svc:3000/${GITEA_USER}/${GITEA_REPO}.git
-    targetRevision: main
-    path: manifests/overlays/staging
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: ${KAFKA_STAGING_NAMESPACE}
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    managedNamespaceMetadata:
-      labels:
-        argocd.argoproj.io/managed-by: argocd
-    syncOptions:
-      - CreateNamespace=true
-EOF
-
-kubectl apply -f - <<EOF
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: ${KAFKA_PRODUCTION_NAMESPACE}
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: http://gitea-http.gitea.svc:3000/${GITEA_USER}/${GITEA_REPO}.git
-    targetRevision: main
-    path: manifests/overlays/production
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: ${KAFKA_PRODUCTION_NAMESPACE}
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    managedNamespaceMetadata:
-      labels:
-        argocd.argoproj.io/managed-by: argocd
-    syncOptions:
-      - CreateNamespace=true
-EOF
+kubectl apply -f "${SCRIPT_DIR}/argocd/staging/"
+kubectl apply -f "${SCRIPT_DIR}/argocd/production/"
 
 # ─── Step 5: Wait for both applications to sync ───────────────────────────────
 
