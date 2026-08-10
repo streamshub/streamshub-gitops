@@ -157,6 +157,14 @@ The staging overlay:
 
 The ArgoCD `kafka-staging` Application points to this directory. When kustomize renders it, ArgoCD gets the full set of resources: namespace, Kafka cluster, KafkaNodePool, and topic — all in the `kafka-staging` namespace.
 
+You can render the full overlay yourself to see exactly what ArgoCD will apply:
+
+```bash
+kubectl kustomize manifests/overlays/staging
+```
+
+Notice that every resource has `namespace: kafka-staging` injected — that is kustomize combining the base with the overlay.
+
 ### The production overlay
 
 ```bash
