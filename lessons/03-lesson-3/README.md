@@ -157,7 +157,14 @@ kubectl get application kafka-tutorial -n argocd -w
 
 The `SYNC STATUS` column will move from `Synced` → `OutOfSync` → `Synced`. Press `Ctrl+C` once it settles.
 
-ArgoCD reports `Synced`. From ArgoCD's perspective, its job is done — it applied the manifest to Kubernetes. But look more carefully at what that means.
+The output should now look something like this:
+
+```
+NAME             SYNC STATUS   HEALTH STATUS
+kafka-tutorial   Synced        Progressing
+```
+
+ArgoCD reports `Synced` — from its perspective, its job is done. It applied the manifest to Kubernetes and the API accepted it. But notice the `HEALTH STATUS` column: it says `Progressing`, not `Healthy`. ArgoCD is waiting for the resource to become ready, but something is wrong underneath. In the next section, you will find out what.
 
 ---
 
