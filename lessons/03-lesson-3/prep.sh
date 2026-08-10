@@ -5,39 +5,12 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../00-setup/common.sh
 source "${SCRIPT_DIR}/../00-setup/common.sh"
 
-info()  { echo -e "\033[1;34m[INFO]\033[0m  $*"; }
-warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*"; }
-error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
-b64decode() { echo "$1" | base64 -d 2>/dev/null || echo "$1" | base64 -D 2>/dev/null; }
-
-cleanup() {
-  if [[ -n "${WORK_DIR:-}" ]]; then
-    rm -rf "${WORK_DIR}"
-  fi
-}
-
 # ─── Step 1: Validate infrastructure ──────────────────────────────────────────
 
 info "Validating tutorial infrastructure..."
-
-if ! kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
-  error "KinD cluster '${CLUSTER_NAME}' is not running."
-  error "Please run the setup script first: ../00-setup/setup.sh"
-  exit 1
-fi
-
-if ! kubectl get deployment strimzi-cluster-operator -n strimzi-operator &>/dev/null; then
-  error "Strimzi operator not found in namespace 'strimzi-operator'."
-  error "Please run the setup script first: ../00-setup/setup.sh"
-  exit 1
-fi
-
-if ! curl -sf "${GITEA_URL}/api/v1/version" >/dev/null 2>&1; then
-  error "Gitea is not reachable on ${GITEA_URL}."
-  error "Please run the setup script first: ../00-setup/setup.sh"
-  exit 1
-fi
-
+require_cluster
+require_strimzi
+require_gitea
 info "Infrastructure checks passed."
 
 # ─── Step 2: Clean up previous lesson state ──────────────────────────────────
@@ -47,13 +20,7 @@ info "Cleaning up previous lesson state..."
 kubectl delete application "${KAFKA_NAMESPACE}" "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}" \
   -n argocd --ignore-not-found 2>/dev/null || true
 
-for ns in "${KAFKA_NAMESPACE}" "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}"; do
-  for cr_type in kafka kafkanodepool kafkatopic; do
-    kubectl get "${cr_type}" -n "${ns}" -o name 2>/dev/null | \
-      xargs -r -I{} kubectl patch {} -n "${ns}" \
-        --type=merge -p '{"metadata":{"finalizers":null}}' 2>/dev/null || true
-  done
-done
+remove_strimzi_finalizers "${KAFKA_NAMESPACE}" "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}"
 
 kubectl delete namespace "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}" --ignore-not-found
 
@@ -93,25 +60,7 @@ kubectl apply -f "${SCRIPT_DIR}/argocd/application.yaml"
 # ─── Step 5: Wait for ArgoCD to sync ──────────────────────────────────────────
 
 info "Waiting for ArgoCD to sync..."
-
-kubectl annotate application "${KAFKA_NAMESPACE}" -n argocd argocd.argoproj.io/refresh=normal --overwrite >/dev/null 2>&1 || true
-
-SYNC_STATUS="Unknown"
-for i in $(seq 1 24); do
-  CURRENT_REVISION=$(kubectl get application "${KAFKA_NAMESPACE}" -n argocd -o jsonpath='{.status.sync.revision}' 2>/dev/null || echo "")
-  SYNC_STATUS=$(kubectl get application "${KAFKA_NAMESPACE}" -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
-  if [[ "${CURRENT_REVISION}" == "${TARGET_REVISION}" && "${SYNC_STATUS}" == "Synced" ]]; then
-    break
-  fi
-  sleep 5
-done
-
-if [[ "${SYNC_STATUS}" != "Synced" ]]; then
-  warn "ArgoCD has not synced yet (status: ${SYNC_STATUS})."
-  warn "Check status with: kubectl get application ${KAFKA_NAMESPACE} -n argocd"
-else
-  info "ArgoCD application is synced."
-fi
+wait_for_argocd_sync "${KAFKA_NAMESPACE}" "${TARGET_REVISION}"
 
 # ─── Step 6: Wait for Kafka cluster to be ready ────────────────────────────────
 
