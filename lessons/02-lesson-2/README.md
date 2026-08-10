@@ -11,7 +11,7 @@ By the end of this lesson you will understand:
 
 - How **kustomize overlays** let you share a base configuration and layer environment-specific differences on top
 - How ArgoCD can manage multiple Applications from a single Git repository, each watching a different path
-- What it means to **promote** a change from staging to production — and why it is just a Git change
+- What it means to **promote** a change from staging to production — and why it is just a configuration change, pushed to your Git repository.
 
 You will do this by observing a staging environment with a deployed Kafka topic, then promoting that topic to production by copying it into the production overlay and pushing to Git.
 
@@ -25,9 +25,9 @@ If you haven't done this yet, run through the [Getting Started](../00-setup/READ
 
 ## Background: Why environments matter
 
-In Lesson 1 you made a single change in the configuration hosted in the git repository and watched it be applied to the the cluster automatically. In practice, organisations don't push changes directly to production — they promote changes through a chain of environments: developers push to **staging** first, validate the change, then promote to **production**.
+In Lesson 1 you made a single change in the configuration hosted in the Git repository and watched it be applied to the the cluster automatically. In practice, organisations don't push changes directly to production — they promote changes through a chain of environments: developers push to **staging** first, validate the change, then promote to **production**.
 
-The key insight: promotion from one environment to another, in a GitOps world, is not a deploy command. It is a change in a git repository. You describe what each environment should look like in the configuration in the repo and ArgoCD continuously reconciles each environment to match its description. Promoting a change means updating the description for the target environment and pushing.
+The key insight: promotion from one environment to another, in a GitOps world, is not a deploy command. It is a change in a Git repository. You describe what each environment should look like in the configuration in the repo and ArgoCD continuously reconciles each environment to match its description. Promoting a change means updating the description for the target environment and pushing.
 
 **Kustomize overlays** are the kubernetes-native mechanism for managing configurations. You keep a shared base configuration and then have one overlay per environment that references the base and adds or patches environment-specific resources. ArgoCD points a separate Application at each overlay.
 
@@ -206,7 +206,7 @@ git commit -m "Promote my-first-topic to production"
 git push
 ```
 
-That is the promotion. The topic definition and the kustomize entry arrive together — just as they would in a real pull request. You changed the configuration in Git; the system will reconcile to match.
+That is the promotion. The topic definition and the kustomize entry arrive together — just as they would in a real pull request. You changed the configuration in the Git repository; the system will reconcile to match.
 
 ---
 
@@ -267,7 +267,7 @@ Strimzi Topic Operator
   └─▶ Strimzi sees the new KafkaTopic and creates the topic inside the kafka-production Kafka broker
 ```
 
-Each Application is independent. Changes to one overlay do not affect the other. The Git repository is the source of truth for both environments, and the overlay structure makes clear exactly what each environment contains.
+Each Application is independent. Changes to one overlay do not affect the other. The configuration in the Git repository is the source of truth for both environments, and the overlay structure makes clear exactly what each environment contains.
 
 ---
 
@@ -348,9 +348,9 @@ Production shows `10`; staging still shows `3`. **The environments are independe
 
 - Kustomize overlays let you share a base configuration and layer environment-specific changes on top without duplicating files
 - ArgoCD can manage multiple Applications from a single Git repository, each watching a different path
-- Promotion is a Git change — copying a resource into the target overlay and adding it to `kustomization.yaml` is all it takes
+- Promotion is a configuration change — copying a resource into the target overlay and adding it to `kustomization.yaml`, followed by a Git commit and push, is all it takes
 - Environments are isolated from each other: a change to one overlay does not affect others
-- In production, you would typically use separate clusters or ArgoCD instances per environment; the promotion principle is identical — it is always a Git change that drives the sync
+- In production, you would typically use separate clusters or ArgoCD instances per environment; the promotion principle is identical — it is always a configuration change, pushed to your Git repository that drives the sync
 
 ---
 
