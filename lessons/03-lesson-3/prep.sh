@@ -20,9 +20,16 @@ info "Cleaning up previous lesson state..."
 kubectl delete application "${KAFKA_NAMESPACE}" "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}" \
   -n argocd --ignore-not-found 2>/dev/null || true
 
+# Start namespace deletion first (non-blocking), then patch away Strimzi finalizers on the
+# now-terminating resources. Doing it in this order avoids a race where the Strimzi operator
+# re-adds finalizers to live (non-terminating) resources before the namespace delete begins.
+kubectl delete namespace "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}" \
+  --ignore-not-found --wait=false
 remove_strimzi_finalizers "${KAFKA_NAMESPACE}" "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}"
 
-kubectl delete namespace "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}" --ignore-not-found
+for ns in "${KAFKA_STAGING_NAMESPACE}" "${KAFKA_PRODUCTION_NAMESPACE}"; do
+  kubectl wait --for=delete "namespace/${ns}" --timeout=120s 2>/dev/null || true
+done
 
 info "Previous lesson state cleaned up."
 
