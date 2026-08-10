@@ -88,31 +88,7 @@ popd >/dev/null
 
 info "Creating ArgoCD application ${KAFKA_NAMESPACE}..."
 
-kubectl apply -f - <<EOF
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: ${KAFKA_NAMESPACE}
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: http://gitea-http.gitea.svc:3000/${GITEA_USER}/${GITEA_REPO}.git
-    targetRevision: main
-    path: manifests
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: ${KAFKA_NAMESPACE}
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    managedNamespaceMetadata:
-      labels:
-        argocd.argoproj.io/managed-by: argocd
-    syncOptions:
-      - CreateNamespace=true
-EOF
+kubectl apply -f "${SCRIPT_DIR}/argocd/application.yaml"
 
 # ─── Step 5: Wait for ArgoCD to sync ──────────────────────────────────────────
 
