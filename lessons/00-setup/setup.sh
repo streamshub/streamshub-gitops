@@ -5,17 +5,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=common.sh
 source "${SCRIPT_DIR}/common.sh"
 
-info()  { echo -e "\033[1;34m[INFO]\033[0m  $*"; }
-warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*"; }
-error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
-b64decode() { echo "$1" | base64 -d 2>/dev/null || echo "$1" | base64 -D 2>/dev/null; }
-
-cleanup() {
-  if [[ -n "${WORK_DIR:-}" ]]; then
-    rm -rf "${WORK_DIR}"
-  fi
-}
-
 # ─── Step 1: Check prerequisites ───────────────────────────────────────────────
 
 info "Checking prerequisites..."

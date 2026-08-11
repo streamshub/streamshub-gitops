@@ -5,26 +5,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../00-setup/common.sh
 source "${SCRIPT_DIR}/../00-setup/common.sh"
 
-info()  { echo -e "\033[1;34m[INFO]\033[0m  $*"; }
-warn()  { echo -e "\033[1;33m[WARN]\033[0m  $*"; }
-error() { echo -e "\033[1;31m[ERROR]\033[0m $*" >&2; }
-b64decode() { echo "$1" | base64 -d 2>/dev/null || echo "$1" | base64 -D 2>/dev/null; }
-
-cleanup() {
-  if [[ -n "${WORK_DIR:-}" ]]; then
-    rm -rf "${WORK_DIR}"
-  fi
-}
-
 # ─── Step 1: Validate infrastructure ──────────────────────────────────────────
 
 info "Validating tutorial infrastructure..."
 
-if ! kind get clusters 2>/dev/null | grep -q "^${CLUSTER_NAME}$"; then
-  error "KinD cluster '${CLUSTER_NAME}' is not running."
-  error "Please run the setup script first: ../00-setup/setup.sh"
-  exit 1
-fi
+require_cluster
 
 if ! kubectl get kafka "${KAFKA_CLUSTER_NAME}" -n "${KAFKA_NAMESPACE}" &>/dev/null; then
   error "Kafka cluster '${KAFKA_CLUSTER_NAME}' not found in namespace '${KAFKA_NAMESPACE}'."
@@ -32,11 +17,7 @@ if ! kubectl get kafka "${KAFKA_CLUSTER_NAME}" -n "${KAFKA_NAMESPACE}" &>/dev/nu
   exit 1
 fi
 
-if ! curl -sf "${GITEA_URL}/api/v1/version" >/dev/null 2>&1; then
-  error "Gitea is not reachable on ${GITEA_URL}."
-  error "Please run the setup script first: ../00-setup/setup.sh"
-  exit 1
-fi
+require_gitea
 
 info "Infrastructure checks passed."
 
@@ -68,26 +49,7 @@ popd >/dev/null
 # ─── Step 3: Wait for ArgoCD sync ─────────────────────────────────────────────
 
 info "Waiting for ArgoCD to sync..."
-
-# Trigger an immediate refresh so ArgoCD picks up the new commit without waiting up to 3 minutes.
-kubectl annotate application kafka-tutorial -n argocd argocd.argoproj.io/refresh=normal --overwrite >/dev/null 2>&1 || true
-
-SYNC_STATUS="Unknown"
-for i in $(seq 1 24); do
-  CURRENT_REVISION=$(kubectl get application kafka-tutorial -n argocd -o jsonpath='{.status.sync.revision}' 2>/dev/null || echo "")
-  SYNC_STATUS=$(kubectl get application kafka-tutorial -n argocd -o jsonpath='{.status.sync.status}' 2>/dev/null || echo "Unknown")
-  if [[ "${CURRENT_REVISION}" == "${TARGET_REVISION}" && "${SYNC_STATUS}" == "Synced" ]]; then
-    break
-  fi
-  sleep 5
-done
-
-if [[ "${SYNC_STATUS}" != "Synced" ]]; then
-  warn "ArgoCD has not synced yet (status: ${SYNC_STATUS})."
-  warn "Check status with: kubectl get application kafka-tutorial -n argocd"
-else
-  info "ArgoCD application is synced."
-fi
+wait_for_argocd_sync "kafka-tutorial" "${TARGET_REVISION}"
 
 # ─── Step 4: Print starting instructions ──────────────────────────────────────
 
