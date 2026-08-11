@@ -13,3 +13,6 @@ GITEA_URL="http://localhost:${GITEA_HOST_PORT}"
 # KAFKA_NAMESPACE is the namespace where Kafka resources are deployed.
 KAFKA_CLUSTER_NAME="my-cluster"
 KAFKA_NAMESPACE="kafka-tutorial"
+
+KAFKA_STAGING_NAMESPACE="kafka-staging"
+KAFKA_PRODUCTION_NAMESPACE="kafka-production"
