@@ -35,7 +35,7 @@ Treating sync alone as a green light is a common and dangerous mistake.
 ## Why "Synced but Unhealthy" Matters
 
 ArgoCD's responsibility ends at the Kubernetes API server. 
-It renders your manifests, applies them, and confirms that Kubernetes accepted the request. 
+It renders your manifests, applies them and confirms that Kubernetes accepted the request. 
 But whether the underlying platform, be it a message broker, a database, or any operator-managed system, can actually honour the change is a separate concern entirely.
 
 Consider a configuration change that the Kubernetes API accepts but the platform rejects. 
