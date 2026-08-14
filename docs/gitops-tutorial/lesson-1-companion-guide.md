@@ -52,14 +52,14 @@ ArgoCD then polls the repository on a regular interval (every three minutes by d
 ArgoCD exposes the state of this process through two key concepts: *sync status* and *health status*. 
 *Sync status* tells you whether the cluster matches the configuration in your Git repository; *Synced* means they match, whereas *OutOfSync* means ArgoCD has detected a difference and will act on it. 
 In the lesson, you will see this status transition when you push a change: it moves from *Synced* to *OutOfSync* (ArgoCD noticed the new commit) and back to *Synced* (ArgoCD applied the change). 
-Health status is a separate concern that tells you whether the resources themselves are functioning correctly, we’ll explore health status in more detail in Lesson 3\. 
+Health status is a separate concern that tells you whether the resources themselves are functioning correctly, we’ll explore health status in more detail in Lesson 3. 
 
 # What to watch for in the lesson
 
 Now that you’ve looked at the core concepts and technologies you’ll be working with in this lesson, it’s almost time to dive in, but as you do look out for these moments where the concepts above become concrete:
 
-\- When you edit \`kustomization.yaml\`, you are declaratively changing the desired state of the cluster.  
-\- When you run \`git push\`, you are updating the single source of truth. From this moment, the configuration in the repository says a topic should exist.  
-\- When ArgoCD's status transitions from \`Synced\` to \`OutOfSync\` and back to \`Synced\`, you are watching the reconciliation loop complete a full cycle: observe the change, calculate the required changes and then roll them out.  
+* When you edit `kustomization.yaml`, you are declaratively changing the desired state of the cluster.  
+* When you run `git push`, you are updating the single source of truth. From this moment, the configuration in the repository says a topic should exist.  
+* When ArgoCD's status transitions from `Synced` to `OutOfSync` and back to `Synced`, you are watching the reconciliation loop complete a full cycle: observe the change, calculate the required changes and then roll them out.  
 
 Now you’re ready to try the first lesson, run through the setup guide to deploy a local Kubernetes cluster and then check out the lesson 1 readme to run through the tutorial. 
