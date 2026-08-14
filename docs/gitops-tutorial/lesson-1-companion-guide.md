@@ -28,8 +28,8 @@ Key benefits of adopting IaC include:
 
 ## Kustomize
 
-Kustomize is a configuration management tool built directly into kubectl that simplifies managing Kubernetes objects. 
-It enables Infrastructure as Code by allowing you to define a common "base" set of configuration files and then apply "overlays" to patch them for different environments, such as staging or production, without relying on messy templating. 
+Kustomize is a configuration management tool built directly into the Kubernetes command line tool (`kubectl`), which simplifies managing Kubernetes objects.
+It enables IaC by allowing you to define a common "base" set of configuration files and then apply "overlays" to patch them for different environments, such as staging or production, without relying on messy templating. 
 This ensures that your configurations remain clean, consistent, and reproducible. 
 
 Throughout these lessons you will create, edit and deploy Kustomize manifests to effect changes to the deployed cluster. 
