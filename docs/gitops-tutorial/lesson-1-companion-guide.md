@@ -62,4 +62,13 @@ Now that you’ve looked at the core concepts and technologies you’ll be worki
 * When you run `git push`, you are updating the single source of truth. From this moment, the configuration in the repository says a topic should exist.  
 * When Argo CD's status transitions from `Synced` to `OutOfSync` and back to `Synced`, you are watching the reconciliation loop complete a full cycle: observe the change, calculate the required changes and then roll them out.  
 
-Now you’re ready to try the first lesson, run through the setup guide to deploy a local Kubernetes cluster and then check out the lesson 1 readme to run through the tutorial. 
+Now you’re ready to try the first lesson. To get started you will need to clone the tutorial repository from GitHub:
+
+```bash
+git clone https://github.com/streamshub/streamshub-gitops.git
+cd streamshub-gitops
+```
+
+Next, follow the setup guide at `lessons/00-setup` to deploy a local Kubernetes cluster with all the required components. This takes about eight minutes and only needs to be done once.
+
+When setup is complete, open the lesson 1 README at `lessons/01-lesson-1/README.md` and work through the tutorial.
