@@ -46,7 +46,7 @@ Popular tools that implement this reconciliation pattern include [Argo CD](https
 Argo CD is an open-source, CD tool that runs inside your Kubernetes cluster and implements the reconciliation loop described above. 
 It is the CD technology you will be working with in all the lessons in this series. 
 
-You tell Argo CD what to watch by creating an *Application* resource, a small piece of configuration that says: "monitor this Git repository, look at this directory path, and deploy whatever you find there into this namespace." 
+You tell Argo CD what to watch by creating an *Application* resource in Kubernetes, a small piece of configuration that says: "monitor this Git repository, look at this directory path, and deploy whatever you find there into this namespace." 
 Argo CD then polls the repository on a regular interval (every three minutes by default, however in our tutorial series we’ve reduced that to thirty seconds for convenience), renders the manifests it finds, and syncs the cluster to match.
 
 Argo CD exposes the state of this process through two key concepts: *sync status* and *health status*. 
