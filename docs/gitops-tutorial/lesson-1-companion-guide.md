@@ -4,7 +4,7 @@ title = 'GitOps Tutorial Series: Lesson 1'
 
 # Introduction
 
-In our introductory article, “Why should you embrace GitOps for your data streams?” we explained how GitOps applies the proven principles of version control and CI/CD to infrastructure, allowing you to treat operations the same way you treat code. 
+In our introductory article, "[Introduction to GitOps](../introduction/_index.md)" we explained how GitOps applies the proven principles of version control and CI/CD to infrastructure, allowing you to treat operations the same way you treat code. 
 With GitOps, you skip clicking through menus and checking boxes. 
 Instead, you describe your system in a set of configuration files stored in a git repository. 
 This repository becomes your *single source of truth* for how everything should look. 
