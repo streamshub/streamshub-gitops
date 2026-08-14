@@ -37,9 +37,9 @@ You can learn more in the [official Kustomize documentation](https://kustomize.i
 
 ## The Reconciliation Loop
 
-The reconciliation loop is the mechanism that transforms Infrastructure as Code into actual, running infrastructure by continuously monitoring and automatically applying changes to reach the desired state. 
+The reconciliation loop is the mechanism that transforms IaC into actual, running infrastructure by continuously monitoring the configuration repository and automatically applying changes to the running infrastructure to reach the desired state.
 By choosing off-the-shelf tooling, you gain significant speed and operational efficiency from this automation. 
-Popular tools that implement this reconciliation pattern include ArgoCD and Flux.
+Popular tools that implement this reconciliation pattern include [ArgoCD](https://argoproj.github.io/cd/) and [Flux](https://fluxcd.io).
 
 ## Argo CD
 
