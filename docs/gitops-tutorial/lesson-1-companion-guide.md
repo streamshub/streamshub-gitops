@@ -1,5 +1,5 @@
 +++
-title = 'GitOps Tutorial Series: Lesson 1 Companion Guide'
+title = 'GitOps Tutorial Series: Lesson 1'
 +++
 
 # Introduction
