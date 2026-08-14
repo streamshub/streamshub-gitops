@@ -50,5 +50,14 @@ Now that you have explored the core concepts and technologies behind environment
 * When you copy `topic.yaml` into the production overlay, add it to `kustomization.yaml`, and run git push, you are performing a GitOps promotion. The commit that updates the target environment's desired state is the only deployment action required.  
 * When Argo CD syncs the kafka-production Application while kafka-staging remains unchanged, you are seeing environment isolation. Because each Application independently watches its own overlay path, a change to one environment never affects another.
 
-Now you are ready to try the second lesson; check out the lesson 2 readme to run through the tutorial.
+Now you're ready to try the second lesson. If you haven't already, clone the tutorial repository from GitHub:
+
+```bash
+git clone https://github.com/streamshub/streamshub-gitops.git
+cd streamshub-gitops
+```
+
+If this is your first lesson, follow the setup guide at `lessons/00-setup` to deploy a local Kubernetes cluster with all the required components. This takes about eight minutes and only needs to be done once. If you have already completed the setup as part of lesson 1, you can skip this step.
+
+When you're ready, open the lesson 2 README at `lessons/02-lesson-2/README.md` and work through the tutorial.
 
