@@ -38,7 +38,7 @@ As you saw in Lesson 1, you change the state of your cluster by updating the con
 
 ## Multiple Argo CD Applications
 
-Argo CD supports the multi-environment pattern through multiple *Application* resources, each configured to watch a different directory path in the same Git repository and deploy to a different namespace. In the lesson, we’ll use a separate Application for staging and production. Argo CD evaluates each Application independently on every poll cycle.
+Argo CD supports the multi-environment pattern through multiple *Application* resources, each configured to watch a different directory path in the same Git repository and deploy to a different namespace (in a real system this would probably be a separate Kubernetes cluster). In the lesson, we’ll use a separate Application for staging and production. Argo CD evaluates each Application independently on every poll cycle.
 
 This independence provides *environment isolation*. When you push a commit that adds a resource to the production overlay, only the production Application detects a change and triggers a roll out. Changes to one environment cannot accidentally affect another, because each Application's scope is limited to its own overlay directory and target namespace.
 
