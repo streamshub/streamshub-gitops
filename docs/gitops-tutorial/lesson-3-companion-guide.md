@@ -28,7 +28,7 @@ When the Kubernetes API accepts the YAML, the Application is `Synced`.
 
 These two statuses are independent. 
 A resource can be `Synced` but `Degraded` or stuck in `Progressing` indefinitely. 
-This happens when Kubernetes stores the desired state without complaint, but the controller responsible for that resource cannot fulfil it. 
+This happens when Kubernetes stores the desired state without complaint, but the controller responsible for that resource cannot fulfill it. 
 A deployment is only truly complete when it is both Synced and Healthy. 
 Treating sync alone as a green light is a common and dangerous mistake.
 
