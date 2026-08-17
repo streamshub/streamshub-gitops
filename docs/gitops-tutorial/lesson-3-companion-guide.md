@@ -92,4 +92,16 @@ As you do, look out for these moments where the concepts become concrete:
 * When you run `git revert` and push, you are performing a GitOps rollback. It is a new additive commit, it doesn't re-write history and the audit trail remains intact.
 * When the Application returns to `Synced` and `Healthy` without any kubectl commands, you are watching the self-healing reconciliation close the loop.
 
-Now you are ready to try the third lesson; check out the lesson 3 readme to run through the tutorial.
+Now you are ready to try the third lesson. 
+If you haven't already, clone the tutorial repository from GitHub:
+
+```bash
+git clone https://github.com/streamshub/streamshub-gitops.git
+cd streamshub-gitops
+```
+
+If this is your first lesson, follow the setup guide at `lessons/00-setup` to deploy a local Kubernetes cluster with all the required components. 
+This takes about eight minutes and only needs to be done once. 
+If you have already completed the setup as part of a previous lesson, you can skip this step.
+
+When you're ready, open the lesson 3 README at `lessons/03-lesson-3/README.md` and work through the tutorial.
