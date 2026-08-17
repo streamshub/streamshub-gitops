@@ -12,17 +12,17 @@ The YAML is well-formed, Kubernetes accepts it, and ArgoCD reports a successful 
 Yet underneath, the system is broken. 
 The configuration you pushed describes something the underlying platform cannot actually do. 
 This is not a hypothetical edge case. 
-It is a failure mode that every team running operator-managed infrastructure will encounter sooner or later.
+It is a failure mode that every team running production infrastructure will encounter sooner or later.
 
 This lesson tackles that scenario head-on. 
-You will learn how to distinguish between a successful sync and a genuinely healthy deployment, and when things go wrong, how to roll back safely using Git alone.
+You will learn how to distinguish between a successful sync and a genuinely healthy deployment, and when things go wrong, how to roll back safely with a single commit.
 
 # Core Concepts
 
 ## Sync Status vs Health Status
 
 ArgoCD tracks two independent statuses for every Application it manages. 
-*Sync status* tells you whether ArgoCD successfully applied the manifests from your Git repository to Kubernetes. 
+*Sync status* tells you whether ArgoCD successfully applied the configuration files from your Git repository to Kubernetes. 
 When the Kubernetes API accepts the YAML, the Application is `Synced`. 
 *Health status* tells you whether the resources are actually functioning correctly.
 
@@ -40,7 +40,7 @@ But whether the underlying platform, be it a message broker, a database, or any 
 
 Consider a configuration change that the Kubernetes API accepts but the platform rejects. 
 The Custom Resource is stored, so ArgoCD reports `Synced`. 
-But the operator that manages that resource inspects the change, determines it violates a platform-level constraint, and marks the resource as not ready. 
+But the operator that manages that resource inspects the change, determines it violates a constraint of the system it manages and marks the resource as not ready. 
 ArgoCD sees this and reports `Progressing` or `Degraded`, but it cannot fix the problem. 
 The system is now in a state where the GitOps engine has done its job, yet the deployment is broken. 
 This is precisely the situation that demands a rollback.
@@ -61,7 +61,7 @@ From Git's perspective, and from ArgoCD's, it is just another commit.
 
 There are two ways to undo a commit in Git, and they have very different implications in a GitOps context.
 
-`git revert` creates a new commit that applies the exact inverse of the target commit. 
+`git revert <commit hash>` creates a new commit that applies the exact inverse of the target commit. 
 The breaking change stays in the history and the record of the rollback sits on top of it, maintaining an intact audit trail.
 This approach is additive and safe on shared branches because it does not alter any existing commits.
 
