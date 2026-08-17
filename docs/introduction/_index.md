@@ -211,5 +211,18 @@ In this project, we use **Argo CD**.
 
 ## What's next
 
-The rest of this documentation covers practical guides and examples for managing a streaming infrastructure portfolio using GitOps.
-Check the other sections for setup instructions, configuration examples, and how-to guides.
+### Try the interactive GitOps tutorial
+
+The best way to start learning GitOps is by doing it.
+The [GitOps Tutorial](../gitops-tutorial/_index.md) is a hands-on, three-lesson series that walks you through real GitOps workflows using Strimzi and Argo CD on a local Kubernetes cluster.
+
+You'll start by making your first GitOps change and watching Argo CD automatically reconcile the cluster.
+From there, you'll learn how to manage multiple environments, promote changes from staging to production and handle failures with safe rollbacks.
+
+Each lesson pairs a hands-on lab with a companion guide that explains the concepts behind what you're doing.
+Setup takes about eight minutes, and by the end you'll have practical experience with the core GitOps workflow: edit, commit, push, and let the automation do the rest.
+
+### Documentation and examples
+
+Beyond the tutorial, the rest of this documentation covers practical guides and examples for managing streaming infrastructure using GitOps.
+You'll find configuration examples for common scenarios like deploying Kafka clusters, setting up OAuth-secured topics, configuring mirror makers for cross-cluster replication, and managing multiple applications with Argo CD ApplicationSets.
