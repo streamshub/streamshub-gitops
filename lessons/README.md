@@ -17,6 +17,7 @@ A shared cluster runs for the whole series. You set it up once, then run a short
 | [Getting Started](00-setup/README.md) | Environment setup | Install the shared cluster, ArgoCD, Strimzi, and a local Git server. Run this once before any lesson. |
 | [Lesson 1](01-lesson-1/README.md) | Your First GitOps Change | Add a Kafka topic by editing a file in Git and watch ArgoCD deploy it automatically — without running `kubectl apply`. |
 | [Lesson 2](02-lesson-2/README.md) | Promoting Changes Across Environments | Use kustomize overlays to manage staging and production separately, then promote a topic from staging to production with a single Git change. |
+| [Lesson 3](03-lesson-3/README.md) | Rolling Back a Bad Change | Deploy a configuration change that ArgoCD accepts but Strimzi rejects, then use `git revert` to roll back and heal the cluster automatically. |
 
 ---
 
