@@ -1,5 +1,5 @@
 +++
-title = 'GitOps Lesson 1: Your f  irst GitOps change'
+title = 'GitOps Lesson 1: Your first GitOps change'
 +++
 
 # Background
